@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}StirForChange{% endblock %} — Youth Food Rescue</title>
+  <meta name="description" content="{% block meta_desc %}StirForChange is a teen-led nonprofit rescuing surplus food and fighting hunger in our community.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    {# Logo image only — no duplicate text next to it #}
+    <a href="{% url 'home' %}" class="nav-logo" aria-label="StirForChange Home">
+      <img src="{% static 'images/logo_nav.png' %}" alt="Stir For Change">
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="{% url 'home' %}">Home</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+      <li><a href="{% url 'podcast' %}">Podcast</a></li>
+      <li><a href="{% url 'volunteer' %}">Volunteer</a></li>
+      <li><a href="{% url 'business' %}">Partner With Us</a></li>
+      <li class="nav-cta"><a href="{% url 'donate' %}">Donate</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<main>
+  {% if messages %}
+    <div class="container messages-wrap">
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">Stir<em>For</em>Change</div>
+        <p>A teen-led 501(c)(3) nonprofit rescuing surplus food and turning it into meals for those who need it most.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigate</h5>
+        <ul>
+          <li><a href="{% url 'home' %}">Home</a></li>
+          <li><a href="{% url 'about' %}">About Aarohi</a></li>
+          <li><a href="{% url 'podcast' %}">Podcast</a></li>
+          <li><a href="{% url 'donate' %}">Donate</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Get Involved</h5>
+        <ul>
+          <li><a href="{% url 'volunteer' %}">Volunteer Signup</a></li>
+          <li><a href="{% url 'business' %}">Business Partner</a></li>
+          <li><a href="https://www.instagram.com/stirforchange/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {% now "Y" %} StirForChange · 501(c)(3) Nonprofit</span>
+      <a href="mailto:stir4change@gmail.com" style="color:rgba(255,255,255,.4);">stir4change@gmail.com</a>
+    </div>
+  </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

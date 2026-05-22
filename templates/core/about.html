@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}About Aarohi{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <span class="tag">Our Founder</span>
+  <h1>Meet <em>Aarohi Jain</em></h1>
+  <p>Passionate about food justice, driven by community. Aarohi started StirForChange because she believed young people could solve real problems.</p>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="about-grid">
+
+      <div class="about-img-wrap">
+        <!-- To add Aarohi's photo: save it as static/images/aarohi.jpg
+             then replace the placeholder below with:
+             <img src="{% load static %}{% static 'images/aarohi.jpg' %}" alt="Aarohi Jain"
+                  style="border-radius:var(--r-lg);width:100%;border:1px solid var(--border);"> -->
+        <div class="about-img-placeholder">
+          <div class="about-img-caption">
+            <strong>Aarohi Jain</strong>
+            <span>Founder &amp; Executive Director</span>
+          </div>
+        </div>
+        <div style="margin-top:1rem;display:flex;flex-direction:column;gap:.75rem;">
+          <a href="{% url 'volunteer' %}" class="btn btn-sage" style="text-align:center;">Join Her Mission</a>
+          <a href="{% url 'podcast' %}" class="btn btn-outline" style="text-align:center;">Hear Her Interviews</a>
+        </div>
+      </div>
+
+      <div class="about-body">
+        <div class="sec-eyebrow">Her Story</div>
+        <h2>From a simple question<br>to a growing movement.</h2>
+        <br>
+        <p>Aarohi Jain founded StirForChange with a question that wouldn't leave her alone: <em>"Why does so much good food get thrown away when so many people are hungry?"</em> That question became a mission — and the mission became an organization.</p>
+        <p>Growing up in a family with multiple food industries, Aarohi Jain noticed how much untouched food goes to waste. She knew people struggled with putting meals on the table. Something had to change, and she decided to be the one to change it. By acting on this, she founded  “StirForChange.”</p>
+        <p>StirForChange is a teen-based nonprofit that prepares and partners with local restaurants to provide food, then packs it with care and delivers it to people in need, including those experiencing homelessness. We collect leftovers of unused food from restaurants that would otherwise go to waste, turning it into meals for people who need it most.</p>
+
+        <h3>The Mission</h3>
+        <p>We reach out to local businesses willing to donate food or supplies — <strong>fresh, properly stored, or unopened food ONLY</strong> — organize volunteers to pack everything into meal boxes, and distribute them to homeless individuals and families in need.</p>
+
+        <h3>Our Values</h3>
+        <ul class="values-list">
+          <li><span class="vi">🌱</span><div><strong>Youth Empowerment</strong> We believe teens are capable of real, lasting impacts. Through teen-based volunteering and leadership, we unite to make an impact to serve our community</div></li>
+          <li><span class="vi">🤝</span><div><strong>Community First</strong> Every decision we make is guided by the needs of the families we serve.</div></li>
+          <li><span class="vi">♻️</span><div><strong>Sustainability</strong> Reducing food waste is good for people and good for the planet.</div></li>
+          <li><span class="vi">📣</span><div><strong>Advocacy</strong> We don't just act — we educate and amplify the conversation around food justice.</div></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

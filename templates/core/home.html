@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}StirForChange — Youth Food Rescue{% endblock %}
+
+{% block content %}
+
+<section style="border-bottom:1.5px solid var(--border);">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        <span>501(c)(3) · Teen-Led · Food Rescue</span>
+      </div>
+      <h1>Turning <em>Surplus</em><br>Into <em>Second Chances</em></h1>
+      <p class="hero-desc">StirForChange is a teen-based nonprofit that rescues surplus food from local restaurants and delivers it to homeless individuals and families in need — powered entirely by youth volunteers.</p>
+      <div class="hero-actions">
+        <a href="{% url 'volunteer' %}" class="btn btn-primary btn-lg">Join Our Team</a>
+        <a href="{% url 'about' %}" class="btn btn-outline btn-lg">Our Story</a>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <span class="hero-panel-tag">Our Impact So Far</span>
+      <h3>Every meal rescued is a life touched.</h3>
+      <p class="hero-panel-desc">From restaurant surplus to community tables — we collect, pack, and deliver. Real food reaching real people, same day.</p>
+      <div class="stats-3">
+        <div class="stat-box"><span class="num">2,400+</span><span class="lbl">Meals Rescued</span></div>
+        <div class="stat-box"><span class="num">18+</span><span class="lbl">Partners</span></div>
+        <div class="stat-box"><span class="num">30+</span><span class="lbl">Volunteers</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mission-strip">
+  <div class="container">
+    <h2>We believe <em>no good food should go to waste</em><br>while people go hungry.</h2>
+    <p style="margin-top:.75rem;">Founded by Aarohi Jain, StirForChange bridges the gap between food surplus and food insecurity — one pickup at a time.</p>
+  </div>
+</section>
+
+<section class="carousel-section">
+  <div class="container">
+    <div class="sec-label">Our Story — From Our Instagram</div>
+    <h2 class="sec-title">Who We Are &amp; What We Stand For</h2>
+    <p class="sec-sub">Swipe through the slides that started it all.</p>
+    <div class="c-wrap">
+      <button class="c-btn c-prev" aria-label="Previous">&#8249;</button>
+      <div class="c-track">
+        <div class="c-slides" id="cSlides">
+
+          {# Slide 1 — big centred logo #}
+          <div class="slide slide-first">
+            <div class="slide-badge"><img src="{% static 'images/logo_sm.png' %}" alt=""></div>
+            <div class="slide-big-logo">
+              <img src="{% static 'images/logo.png' %}" alt="Stir For Change logo">
+            </div>
+            <div class="slide-title">Stir For Change</div>
+            <div class="slide-sub">A teen-led nonprofit fighting hunger &amp; food waste</div>
+          </div>
+
+          {# Slides 2–7 — small badge top-left, text centred #}
+          <div class="slide">
+            <div class="slide-badge"><img src="{% static 'images/logo_sm.png' %}" alt=""></div>
+            <h3>Who are we?</h3>
+            <p>We are a teen-based nonprofit that prepares and partners with local restaurants to provide food, then we pack it with care and deliver it to people in need, including those experiencing homelessness. We collect leftovers of unused food from restaurants that would otherwise go to waste, turning it into meals for people who need it most.</p>
+          </div>
+
+          <div class="slide">
+            <div class="slide-badge"><img src="{% static 'images/logo_sm.png' %}" alt=""></div>
+            <h3>What we do</h3>
+            <p>We reach out to local businesses willing to donate food or supplies — <strong>fresh, properly stored, or unopened food ONLY</strong> — organize volunteers to pack everything into meal boxes, and distribute them to homeless individuals and families in need.</p>
+          </div>
+
+          <div class="slide">
+            <div class="slide-badge"><img src="{% static 'images/logo_sm.png' %}" alt=""></div>
+            <h3>Why we do it</h3>
+            <p>Millions of pounds of food go to waste every year while people in our communities go hungry. StirForChange bridges that gap, turning restaurant food waste into meals for people.</p>
+          </div>
+
+          <div class="slide">
+            <div class="slide-badge"><img src="{% static 'images/logo_sm.png' %}" alt=""></div>
+            <h3>Why it matters</h3>
+            <p>Hunger isn't a distant problem — it's happening on streets near you. When a restaurant donates its leftover food to us instead of throwing it away, that food becomes someone's dinner tonight. Every box we deliver is a direct act of change in our community.</p>
+          </div>
+
+          <div class="slide">
+            <div class="slide-badge"><img src="{% static 'images/logo_sm.png' %}" alt=""></div>
+            <h3>Why you should care</h3>
+            <p>Because you can be part of the solution. If you're a restaurant, your excess food has value — we'll make sure it reaches someone who needs it. If you're a volunteer, one afternoon of packing and delivering can feed dozens of people.</p>
+          </div>
+
+          <div class="slide">
+            <div class="slide-badge"><img src="{% static 'images/logo_sm.png' %}" alt=""></div>
+            <h3>The impact</h3>
+            <p>StirForChange tackles two problems at once: community hunger and food waste. Every meal we deliver reduces the amount of food that ends up in a landfill and puts it where it belongs — on the table of someone in need.</p>
+          </div>
+
+        </div>
+      </div>
+      <button class="c-btn c-next" aria-label="Next">&#8250;</button>
+      <div class="c-dots" id="cDots"></div>
+    </div>
+  </div>
+</section>
+
+<section class="hiw-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="sec-eyebrow">How It Works</div>
+      <h2>Simple model. <em style="color:var(--red);font-style:italic;">Real impact.</em></h2>
+      <p>Businesses donate, volunteers collect and pack, families receive fresh meals — all same day.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><span class="step-ghost">1</span><div class="step-icon">🍱</div><h4>Businesses Pledge Surplus</h4><p>Restaurants, cafés, and bakeries donate end-of-day surplus — fresh, properly stored, or unopened food only.</p></div>
+      <div class="step-card"><span class="step-ghost">2</span><div class="step-icon">📦</div><h4>Volunteers Pack &amp; Pick Up</h4><p>Our trained teen volunteers coordinate pickups, carefully pack meal boxes, and ensure safe food handling.</p></div>
+      <div class="step-card"><span class="step-ghost">3</span><div class="step-icon">🏠</div><h4>Families Receive Meals</h4><p>Packed meals are distributed same-day to homeless individuals and families in need throughout the community.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="sec-eyebrow">Testimonials</div>
+      <h2>Words from our <em style="color:var(--red);font-style:italic;">community</em></h2>
+      <p>Volunteers, business partners, and community members share their experience.</p>
+    </div>
+    {% if testimonials %}
+      <div class="t-grid">
+        {% for t in testimonials %}
+        <div class="t-card">
+          <div class="t-quote-mark">"</div>
+          <p class="t-quote">{{ t.quote }}</p>
+          <div class="t-author">
+            <div class="t-avatar">{{ t.name|first }}</div>
+            <div><div class="t-name">{{ t.name }}</div><div class="t-role">{{ t.role }}</div></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="t-empty">
+        <p>✨ Testimonials coming soon! Add them via the <a href="/admin/core/testimonial/add/" style="color:var(--red);">admin panel</a>.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="donate-strip">
+  <div class="container">
+    <h2>Help us rescue even more meals.</h2>
+    <p>Your donation funds volunteer training, food-safe transport supplies, and community distribution.</p>
+    <a href="{% url 'donate' %}" class="btn btn-white btn-lg">Donate Now</a>
+  </div>
+</section>
+
+<script>
+(function(){
+  var slides=document.getElementById('cSlides'),dotsEl=document.getElementById('cDots');
+  var items=slides.querySelectorAll('.slide'),total=items.length,cur=0,timer;
+  for(var i=0;i<total;i++){
+    var d=document.createElement('button');
+    d.className='c-dot'+(i===0?' active':'');
+    d.setAttribute('aria-label','Slide '+(i+1));
+    (function(idx){d.addEventListener('click',function(){go(idx);reset();});})(i);
+    dotsEl.appendChild(d);
+  }
+  function go(n){cur=(n+total)%total;slides.style.transform='translateX(-'+(cur*100)+'%)';dotsEl.querySelectorAll('.c-dot').forEach(function(d,i){d.classList.toggle('active',i===cur);});}
+  function reset(){clearInterval(timer);timer=setInterval(function(){go(cur+1);},5500);}
+  document.querySelector('.c-prev').addEventListener('click',function(){go(cur-1);reset();});
+  document.querySelector('.c-next').addEventListener('click',function(){go(cur+1);reset();});
+  reset();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+
+  <div class="dash-header">
+    <div class="container">
+      <h1>StirForChange Dashboard</h1>
+      <p>Live overview of signups, donations, and activity.</p>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- ── STAT CARDS ── -->
+    <div class="dash-stats">
+      <div class="dash-stat accent">
+        <div class="ds-label">Total Donations</div>
+        <div class="ds-num">${{ total_donations|floatformat:0 }}</div>
+        <div class="ds-sub">${{ month_donations|floatformat:0 }} this month · {{ donation_count }} total</div>
+      </div>
+      <div class="dash-stat">
+        <div class="ds-label">Volunteers</div>
+        <div class="ds-num">{{ total_volunteers }}</div>
+        <div class="ds-sub">+{{ new_volunteers }} this week</div>
+      </div>
+      <div class="dash-stat">
+        <div class="ds-label">Business Partners</div>
+        <div class="ds-num">{{ total_businesses }}</div>
+        <div class="ds-sub">+{{ new_businesses }} this week</div>
+      </div>
+      <div class="dash-stat">
+        <div class="ds-label">Podcast Episodes</div>
+        <div class="ds-num">{{ total_episodes }}</div>
+        <div class="ds-sub">{{ testimonial_count }} testimonials active</div>
+      </div>
+    </div>
+
+    <!-- ── VOLUNTEERS (detailed) ── -->
+    <div class="dash-card" style="margin-bottom:1.5rem;">
+      <div class="dash-card-head">
+        <h3>Volunteer Signups</h3>
+        <a href="/admin/core/volunteersignup/">View all in admin →</a>
+      </div>
+      {% if volunteers_with_futures %}
+        <div style="overflow-x:auto;">
+          {% for item in volunteers_with_futures %}
+          {% with v=item.vol futures=item.futures %}
+          <div class="vol-detail-row">
+            <!-- Left: personal info -->
+            <div class="vol-personal">
+              <div class="vol-avatar">{{ v.first_name|first }}{{ v.last_name|first }}</div>
+              <div>
+                <div class="vol-name">{{ v.first_name }} {{ v.last_name }}</div>
+                <div class="vol-meta">{{ v.email }}</div>
+                {% if v.phone %}<div class="vol-meta">{{ v.phone }}</div>{% endif %}
+                <div class="vol-meta">Age {{ v.age }} &nbsp;·&nbsp; Signed up {{ v.created_at|date:"M j, Y" }}</div>
+                {% if v.school %}<div class="vol-meta">🎓 {{ v.school }}</div>{% endif %}
+              </div>
+            </div>
+
+            <!-- Middle: general availability -->
+            <div class="vol-avail">
+              <div class="vol-avail-label">General Availability</div>
+              {% if v.avail_days %}
+                <div class="vol-days-wrap">
+                  {% for day in v.avail_days.split %}
+                    {% with day_clean=day|cut:"," %}
+                    <span class="vol-day-pill">{{ day_clean|capfirst }}</span>
+                    {% endwith %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="vol-na">Not specified</span>
+              {% endif %}
+              {% if v.avail_start and v.avail_end %}
+                <div class="vol-time-badge">⏰ {{ v.avail_start }} – {{ v.avail_end }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Right: future specific dates -->
+            <div class="vol-futures">
+              <div class="vol-avail-label">Specific Future Dates</div>
+              {% if futures %}
+                {% for f in futures %}
+                <div class="vol-future-entry">
+                  <span class="vol-future-date">📅 {{ f.date }}</span>
+                  {% if f.start and f.end %}
+                    <span class="vol-future-time">{{ f.start }} – {{ f.end }}</span>
+                  {% elif f.start %}
+                    <span class="vol-future-time">From {{ f.start }}</span>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <span class="vol-na">None added</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endwith %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="dash-empty">No volunteer signups yet.</div>
+      {% endif %}
+    </div>
+
+    <!-- ── BUSINESS PARTNERS ── -->
+    <div class="dash-card" style="margin-bottom:1.5rem;">
+      <div class="dash-card-head">
+        <h3>Business Partners</h3>
+        <a href="/admin/core/businesssignup/">View all →</a>
+      </div>
+      {% if recent_businesses %}
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Contact</th>
+              <th>Address</th>
+              <th>Type</th>
+              <th>Frequency</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in recent_businesses %}
+            <tr>
+              <td><strong>{{ b.business_name }}</strong></td>
+              <td>{{ b.contact_name }}<br><span style="font-size:.75rem;color:var(--muted);">{{ b.email }}</span><br><span style="font-size:.75rem;color:var(--muted);">{{ b.phone }}</span></td>
+              <td style="font-size:.8rem;color:var(--muted);">{{ b.street_address }}<br>{{ b.city }}, {{ b.state }} {{ b.zip_code }}</td>
+              <td><span class="method-badge stripe">{{ b.get_business_type_display }}</span></td>
+              <td style="font-size:.8rem;color:var(--muted);">{{ b.frequency|default:"—" }}</td>
+              <td style="font-size:.78rem;color:var(--muted);">{{ b.created_at|date:"M j, Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="dash-empty">No business signups yet.</div>
+      {% endif %}
+    </div>
+
+    <!-- ── DONATIONS ── -->
+    <div class="dash-grid-3" style="margin-bottom:1.5rem;">
+      <div class="dash-card">
+        <div class="dash-card-head"><h3>By Method</h3><a href="/admin/core/donationrecord/add/">+ Add</a></div>
+        {% if by_method %}
+          <table class="dash-table">
+            <thead><tr><th>Method</th><th>Count</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for row in by_method %}
+              <tr>
+                <td><span class="method-badge {{ row.method }}">{{ row.method|capfirst }}</span></td>
+                <td>{{ row.count }}</td>
+                <td><strong>${{ row.total|floatformat:0 }}</strong></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="dash-empty">No donations yet. <a href="/admin/core/donationrecord/add/" style="color:var(--red);">Log one →</a></div>
+        {% endif %}
+      </div>
+      <div class="dash-card" style="grid-column:span 2;">
+        <div class="dash-card-head"><h3>Recent Donations</h3><a href="/admin/core/donationrecord/">View all →</a></div>
+        {% if recent_donations %}
+          <table class="dash-table">
+            <thead><tr><th>Donor</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead>
+            <tbody>
+              {% for d in recent_donations %}
+              <tr>
+                <td>{{ d.donor_name|default:"Anonymous" }}<br><span style="font-size:.75rem;color:var(--muted);">{{ d.donor_email }}</span></td>
+                <td><strong>${{ d.amount }}</strong></td>
+                <td><span class="method-badge {{ d.method }}">{{ d.method|capfirst }}</span></td>
+                <td style="font-size:.78rem;color:var(--muted);">{{ d.created_at|date:"M j, Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="dash-empty">No donations recorded yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── PODCAST ── -->
+    <div class="dash-card" style="margin-bottom:2rem;">
+      <div class="dash-card-head"><h3>Podcast Episodes</h3><a href="/admin/core/podcastepisode/add/">+ Add Episode</a></div>
+      {% if recent_episodes %}
+        <table class="dash-table">
+          <thead><tr><th>Title</th><th>Guest</th><th>Type</th><th>Published</th><th>Featured</th></tr></thead>
+          <tbody>
+            {% for ep in recent_episodes %}
+            <tr>
+              <td>{{ ep.title }}</td>
+              <td style="color:var(--muted);font-size:.8rem;">{{ ep.guest_name }}</td>
+              <td><span class="ep-type-badge {{ ep.episode_type }}">{{ ep.get_episode_type_display }}</span></td>
+              <td style="color:var(--muted);font-size:.78rem;">{{ ep.published_date|date:"M j, Y" }}</td>
+              <td>{% if ep.is_featured %}⭐{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="dash-empty">No episodes yet. <a href="/admin/core/podcastepisode/add/" style="color:var(--red);">Add one →</a></div>
+      {% endif %}
+    </div>
+
+    <!-- ── QUICK LINKS ── -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;">
+      <a href="/admin/core/volunteersignup/"   class="dash-stat" style="text-decoration:none;text-align:center;cursor:pointer;"><div class="ds-label">Manage</div><div style="font-size:1.75rem;">👤</div><div style="font-size:.85rem;font-weight:500;margin-top:.25rem;color:var(--charcoal);">Volunteers</div></a>
+      <a href="/admin/core/businesssignup/"    class="dash-stat" style="text-decoration:none;text-align:center;cursor:pointer;"><div class="ds-label">Manage</div><div style="font-size:1.75rem;">🏪</div><div style="font-size:.85rem;font-weight:500;margin-top:.25rem;color:var(--charcoal);">Businesses</div></a>
+      <a href="/admin/core/testimonial/"       class="dash-stat" style="text-decoration:none;text-align:center;cursor:pointer;"><div class="ds-label">Manage</div><div style="font-size:1.75rem;">💬</div><div style="font-size:.85rem;font-weight:500;margin-top:.25rem;color:var(--charcoal);">Testimonials</div></a>
+      <a href="/admin/core/podcastepisode/"    class="dash-stat" style="text-decoration:none;text-align:center;cursor:pointer;"><div class="ds-label">Manage</div><div style="font-size:1.75rem;">🎙️</div><div style="font-size:.85rem;font-weight:500;margin-top:.25rem;color:var(--charcoal);">Podcast</div></a>
+    </div>
+
+  </div>
+</div>
+
+<style>
+/* ── Volunteer detail rows ─────────────── */
+.vol-detail-row {
+  display: grid;
+  grid-template-columns: 260px 220px 1fr;
+  gap: 0;
+  border-top: 1.5px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  align-items: start;
+  transition: background .15s;
+}
+.vol-detail-row:hover { background: var(--pink-bg); }
+.vol-personal { display: flex; gap: .9rem; align-items: flex-start; }
+.vol-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--pink); color: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-d); font-size: .9rem; font-weight: 600;
+  flex-shrink: 0;
+}
+.vol-name { font-size: .9rem; font-weight: 500; color: var(--charcoal); margin-bottom: 2px; }
+.vol-meta { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+.vol-avail { padding: 0 1.25rem; border-left: 1.5px solid var(--border); }
+.vol-futures { padding: 0 0 0 1.25rem; border-left: 1.5px solid var(--border); }
+.vol-avail-label {
+  font-size: .68rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--red); margin-bottom: .5rem;
+}
+.vol-days-wrap { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .5rem; }
+.vol-day-pill {
+  background: var(--pink); color: var(--red);
+  border-radius: 40px; padding: 3px 10px;
+  font-size: .72rem; font-weight: 500;
+}
+.vol-time-badge {
+  display: inline-block;
+  background: var(--pink-bg); border: 1px solid var(--border);
+  border-radius: var(--r1); padding: 4px 10px;
+  font-size: .78rem; color: var(--charcoal); font-weight: 500;
+}
+.vol-future-entry {
+  display: flex; gap: .5rem; align-items: center;
+  margin-bottom: .4rem; flex-wrap: wrap;
+}
+.vol-future-date {
+  font-size: .8rem; font-weight: 500; color: var(--charcoal);
+}
+.vol-future-time {
+  font-size: .78rem; color: var(--muted);
+  background: var(--pink-bg); border-radius: 40px;
+  padding: 2px 8px; border: 1px solid var(--border);
+}
+.vol-na { font-size: .8rem; color: var(--muted); font-style: italic; }
+
+@media(max-width:900px){
+  .vol-detail-row { grid-template-columns: 1fr; gap: 1rem; }
+  .vol-avail, .vol-futures { padding: .75rem 0 0; border-left: none; border-top: 1px solid var(--border); }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Donate{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <span class="tag">Support Our Mission</span>
+  <h1>Every Dollar <em>Feeds a Family</em></h1>
+  <p>StirForChange is a registered 501(c)(3) nonprofit. All donations are fully tax-deductible. You'll receive a receipt upon request.</p>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="donate-page">
+
+      <h3 style="font-family:var(--ff-d);">Choose an amount</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:.35rem;">Your gift goes directly to food rescue operations.</p>
+
+      <div class="donate-amounts">
+        <div class="amount-card selected">
+          <div class="amount-num">$10</div>
+          <div class="amount-impact">Covers 1 pickup supply run</div>
+        </div>
+        <div class="amount-card">
+          <div class="amount-num">$25</div>
+          <div class="amount-impact">Rescues ~50 lbs of food</div>
+        </div>
+        <div class="amount-card">
+          <div class="amount-num">$50</div>
+          <div class="amount-impact">Feeds a family for a week</div>
+        </div>
+        <div class="amount-card">
+          <div class="amount-num">$100</div>
+          <div class="amount-impact">Trains a new volunteer</div>
+        </div>
+      </div>
+
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:2rem;">Or enter a custom amount when you click through below.</p>
+
+      <h3 style="font-family:var(--ff-d);margin-bottom:1.25rem;">How to donate</h3>
+
+      <div class="donate-methods">
+
+        <div class="donate-method">
+          <div class="dm-icon">💳</div>
+          <div class="dm-info">
+            <h4>Credit / Debit Card — Stripe</h4>
+            <p>Secure card payments. Visa, Mastercard, Amex, Discover all accepted.</p>
+            <div class="dm-detail">Instant receipt · Most secure option</div>
+          </div>
+          {# Replace with your real Stripe Payment Link #}
+          <a href="https://buy.stripe.com/YOUR_STRIPE_LINK" target="_blank" rel="noopener" class="btn btn-primary">Donate with Card</a>
+        </div>
+
+        <div class="donate-method">
+          <div class="dm-icon">⚡</div>
+          <div class="dm-info">
+            <h4>Zelle</h4>
+            <p>Free bank-to-bank transfer. Zero fees, instant.</p>
+            <div class="dm-detail">Send to: stir4change@gmail.com</div>
+          </div>
+          <a href="https://www.zellepay.com/" target="_blank" rel="noopener" class="btn btn-outline">Open Zelle</a>
+        </div>
+
+        <div class="donate-method">
+          <div class="dm-icon">✉️</div>
+          <div class="dm-info">
+            <h4>Check / Mail-In</h4>
+            <p>Make check payable to <strong>StirForChange</strong>.</p>
+            <div class="dm-detail">Email us for mailing address</div>
+          </div>
+          <a href="mailto:stir4change@gmail.com" class="btn btn-outline">Get Address</a>
+        </div>
+
+      </div>
+
+      <div class="tax-note">
+        <strong>StirForChange is a 501(c)(3) nonprofit organization.</strong>
+        <p>Tax ID (EIN): XX-XXXXXXX · All donations are tax-deductible to the extent permitted by law. Contact stir4change@gmail.com for a receipt.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('.amount-card').forEach(function(c){
+  c.addEventListener('click',function(){
+    document.querySelectorAll('.amount-card').forEach(function(x){x.classList.remove('selected');});
+    c.classList.add('selected');
+  });
+});
+</script>
+
+{% endblock %}
