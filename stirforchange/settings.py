@@ -4,9 +4,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-change-me-before-production-stirforchange-2025'
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['stirforchange.org', 'www.stirforchange.org', '184.94.212.44', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -20,6 +20,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -67,30 +68,27 @@ TIME_ZONE = 'America/Los_Angeles'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL  = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
+MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ── Email ─────────────────────────────────────────────
+# Console for now — enable SMTP when ready
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# ── Email Configuration ──────────────────────────────
-# For development: emails print to console
-# For production: switch to smtp and fill in your real credentials
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# To enable real email sending, comment out the line above and fill in below:
+# EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST          = 'smtp.gmail.com'
+# EMAIL_PORT          = 587
+# EMAIL_USE_TLS       = True
+# EMAIL_HOST_USER     = 'stir4change@gmail.com'
+# EMAIL_HOST_PASSWORD = 'your-gmail-app-password'
 
-# Uncomment below and fill in when deploying:
-# EMAIL_BACKEND   = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST      = 'smtp.gmail.com'
-# EMAIL_PORT      = 587
-# EMAIL_USE_TLS   = True
-# EMAIL_HOST_USER     = 'your@gmail.com'       # sender address
-# EMAIL_HOST_PASSWORD = 'your-app-password'    # Gmail App Password
-# DEFAULT_FROM_EMAIL  = 'StirForChange <your@gmail.com>'
-
-STIRFORCHANGE_EMAIL = 'stir4change@gmail.com'   # org inbox (receives copies)
+STIRFORCHANGE_EMAIL = 'stir4change@gmail.com'
 DEFAULT_FROM_EMAIL  = 'StirForChange <stir4change@gmail.com>'
