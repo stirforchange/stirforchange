@@ -29,7 +29,6 @@ def volunteer(request):
         form = VolunteerForm(request.POST)
         if form.is_valid():
             vol = form.save(commit=False)
-            # Collect future date rows
             future_entries = []
             i = 0
             while i <= 20:
@@ -60,8 +59,15 @@ def business(request):
         if form.is_valid():
             biz = form.save()
             send_business_confirmation(biz)
-            messages.success(request, f"Thank you, {biz.business_name}! We'll reach out within 2–3 business days.")
+            messages.success(request, f"Thank you, {biz.business_name}! We'll be in touch as soon as possible.")
             return redirect('business')
+        else:
+            error_list = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_list.append(f"{field}: {error}")
+            if error_list:
+                messages.error(request, f"Please fix these errors: {', '.join(error_list)}")
     else:
         form = BusinessForm()
     return render(request, 'core/business.html', {'form': form})
@@ -82,7 +88,6 @@ def dashboard(request):
     new_volunteers    = volunteers.filter(created_at__gte=week_start).count()
     recent_volunteers = volunteers[:10]
 
-    # Parse future_dates JSON for display
     volunteers_with_futures = []
     for v in recent_volunteers:
         try:
