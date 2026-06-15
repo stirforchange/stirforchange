@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard">
+  <div class="dash-header">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.35rem;">
+            <a href="/dashboard/" style="color:#fff;text-decoration:none;font-family:var(--ff-d);font-size:1.4rem;font-weight:600;">Dashboard</a>
+            <span class="role-badge role-{{ user_role }}">
+              {% if user_role == 'owner' %}👑 Owner{% elif user_role == 'admin' %}🛡️ Admin{% else %}👁️ Moderator{% endif %}
+            </span>
+          </div>
+          <p style="margin:0;color:rgba(255,255,255,.8);font-size:.85rem;">{{ request.user.get_full_name|default:request.user.username }}</p>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <a href="/dashboard/" class="dash-hdr-btn">← Dashboard</a>
+          <a href="/staff/logout/" class="dash-hdr-btn" style="background:rgba(255,255,255,.1);">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dash-body">
+    {% if messages %}{% for msg in messages %}
+    <div class="dash-msg {% if msg.tags == 'error' %}dash-msg-err{% else %}dash-msg-ok{% endif %}">{{ msg }}</div>
+    {% endfor %}{% endif %}
+    {% block dash_content %}{% endblock %}
+  </div>
+</div>
+{% block dash_styles %}{% endblock %}
+{% endblock %}
+{% block dash_styles %}
+<style>
+.dash-card { background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);box-shadow:var(--s1);overflow:hidden; }
+.dash-card-head { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--pink-bg); }
+.dash-card-head h3 { margin:0;font-size:.95rem;font-weight:600;color:var(--charcoal); }
+.dash-input { width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r1);font-family:var(--ff-b);font-size:.9rem;color:var(--charcoal);background:var(--white);box-sizing:border-box;transition:border-color .2s;-webkit-appearance:none; }
+.dash-input:focus { outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(181,39,58,.1); }
+.dash-label { font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--charcoal);display:block;margin-bottom:5px; }
+.dash-body { max-width:900px;margin:0 auto;padding:1.5rem; }
+.dash-msg { border-radius:var(--r2);padding:.85rem 1rem;margin-bottom:1rem;font-size:.88rem; }
+.dash-msg-ok  { background:#d4edda;border:1px solid #c3e6cb;color:#155724; }
+.dash-msg-err { background:#fdf2f4;border:1px solid var(--pink);color:var(--red); }
+.dash-hdr-btn { display:inline-flex;align-items:center;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:var(--r2);padding:8px 16px;font-size:.82rem;font-weight:500;text-decoration:none;transition:all .18s; }
+.dash-hdr-btn:hover { background:rgba(255,255,255,.3); }
+.role-badge { display:inline-flex;align-items:center;gap:.3rem;border-radius:40px;padding:4px 12px;font-size:.75rem;font-weight:600;border:1px solid; }
+.role-owner     { background:#fff8e1;color:#b8860b;border-color:#f0d060; }
+.role-admin     { background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0; }
+.role-moderator { background:var(--pink-bg);color:var(--red);border-color:var(--pink); }
+</style>
+{% endblock %}

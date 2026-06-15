@@ -1,0 +1,37 @@
+{% extends 'core/dash_base.html' %}
+{% block title %}{% if ep %}Edit{% else %}Add{% endif %} Episode{% endblock %}
+{% block dash_content %}
+<div class="dash-card" style="max-width:700px;">
+  <div class="dash-card-head"><h3>🎙️ {% if ep %}Edit Episode{% else %}Add New Episode{% endif %}</h3></div>
+  <form method="post" style="padding:1.5rem;">
+    {% csrf_token %}
+    <div class="form-group"><label class="dash-label">Episode Title *</label><input type="text" name="title" value="{{ ep.title|default:'' }}" class="dash-input" required></div>
+    <div class="form-row">
+      <div class="form-group"><label class="dash-label">Guest Name *</label><input type="text" name="guest_name" value="{{ ep.guest_name|default:'' }}" class="dash-input" required></div>
+      <div class="form-group"><label class="dash-label">Guest Title / Role</label><input type="text" name="guest_title" value="{{ ep.guest_title|default:'' }}" class="dash-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="dash-label">Episode Type *</label>
+        <select name="episode_type" class="dash-input">
+          <option value="video"   {% if ep and ep.episode_type == 'video' %}selected{% endif %}>Video Interview</option>
+          <option value="written" {% if ep and ep.episode_type == 'written' %}selected{% endif %}>Written Interview</option>
+          <option value="audio"   {% if ep and ep.episode_type == 'audio' %}selected{% endif %}>Audio / Podcast</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="dash-label">Published Date *</label><input type="date" name="published_date" value="{{ ep.published_date|default:'' }}" class="dash-input" required></div>
+    </div>
+    <div class="form-group"><label class="dash-label">Description *</label><textarea name="description" rows="3" class="dash-input" required>{{ ep.description|default:'' }}</textarea></div>
+    <div class="form-group"><label class="dash-label">Full Content (for written interviews)</label><textarea name="content" rows="5" class="dash-input">{{ ep.content|default:'' }}</textarea></div>
+    <div class="form-group"><label class="dash-label">YouTube URL</label><input type="url" name="youtube_url" value="{{ ep.youtube_url|default:'' }}" class="dash-input" placeholder="https://youtube.com/watch?v=..."></div>
+    <div class="form-group"><label class="dash-label">Spotify URL</label><input type="url" name="spotify_url" value="{{ ep.spotify_url|default:'' }}" class="dash-input" placeholder="https://open.spotify.com/..."></div>
+    <div class="form-group" style="display:flex;align-items:center;gap:.75rem;margin-top:.5rem;">
+      <input type="checkbox" name="is_featured" id="is_featured" {% if ep and ep.is_featured %}checked{% endif %} style="width:18px;height:18px;accent-color:var(--red);">
+      <label for="is_featured" style="font-size:.88rem;color:var(--charcoal);cursor:pointer;">Feature this episode on the podcast page</label>
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+      <button type="submit" class="btn btn-primary">{% if ep %}Save Changes{% else %}Add Episode{% endif %}</button>
+      <a href="/dashboard/" class="btn" style="background:var(--pink-bg);color:var(--charcoal);border:1.5px solid var(--border);">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
