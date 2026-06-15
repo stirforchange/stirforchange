@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}Manage Staff{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+
+  <div class="dash-header">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h1>👑 Staff Management</h1>
+          <p>Create and manage admin and moderator accounts.</p>
+        </div>
+        <div style="display:flex;gap:.75rem;">
+          <a href="/dashboard/" class="btn btn-white" style="font-size:.8rem;padding:9px 18px;">← Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for msg in messages %}
+      <div style="background:{% if msg.tags == 'error' %}#fdf2f4{% else %}#d4edda{% endif %};
+                  border:1px solid {% if msg.tags == 'error' %}var(--pink){% else %}#c3e6cb{% endif %};
+                  color:{% if msg.tags == 'error' %}var(--red){% else %}#155724{% endif %};
+                  border-radius:var(--r2);padding:.85rem 1rem;margin-bottom:1rem;font-size:.88rem;">
+        {{ msg }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+
+      <!-- ── Create new staff ── -->
+      <div class="dash-card">
+        <div class="dash-card-head"><h3>➕ Create Staff Account</h3></div>
+        <form method="post" style="padding:0 1.5rem 1.5rem;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="create">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+            <div class="form-group">
+              <label class="staff-label">First Name</label>
+              <input type="text" name="first_name" class="staff-input" placeholder="First name">
+            </div>
+            <div class="form-group">
+              <label class="staff-label">Last Name</label>
+              <input type="text" name="last_name" class="staff-input" placeholder="Last name">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:.75rem;">
+            <label class="staff-label">Username *</label>
+            <input type="text" name="username" class="staff-input" placeholder="e.g. sarah_admin" required>
+          </div>
+
+          <div class="form-group" style="margin-top:.75rem;">
+            <label class="staff-label">Password *</label>
+            <input type="password" name="password" class="staff-input" placeholder="Set a strong password" required>
+          </div>
+
+          <div class="form-group" style="margin-top:.75rem;">
+            <label class="staff-label">Role *</label>
+            <select name="role" class="staff-input">
+              <option value="admin">Admin — can manage everything except owner settings</option>
+              <option value="moderator" selected>Moderator — read-only, view volunteers & businesses</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.25rem;">
+            Create Account →
+          </button>
+        </form>
+      </div>
+
+      <!-- ── Role descriptions ── -->
+      <div>
+        <div class="dash-card" style="margin-bottom:1rem;">
+          <div class="dash-card-head"><h3>👑 Owner</h3></div>
+          <div style="padding:0 1.5rem 1.5rem;font-size:.85rem;color:var(--muted);line-height:1.7;">
+            Full access to everything. Can create/delete admins and moderators. Can access all data, donations, podcast, testimonials. Cannot be deleted or demoted.
+          </div>
+        </div>
+        <div class="dash-card" style="margin-bottom:1rem;">
+          <div class="dash-card-head"><h3>🛡️ Admin</h3></div>
+          <div style="padding:0 1.5rem 1.5rem;font-size:.85rem;color:var(--muted);line-height:1.7;">
+            Can view all data including donations, podcast, and testimonials. Cannot manage staff accounts or access owner settings.
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-head"><h3>👁️ Moderator</h3></div>
+          <div style="padding:0 1.5rem 1.5rem;font-size:.85rem;color:var(--muted);line-height:1.7;">
+            Read-only access. Can only view volunteer signups and business partner signups. Cannot see donations, podcast, or testimonial data.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Current staff list ── -->
+    <div class="dash-card" style="margin-top:1.5rem;">
+      <div class="dash-card-head"><h3>👥 Current Staff</h3></div>
+      {% if staff_members %}
+        <div style="overflow-x:auto;">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Created By</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sp in staff_members %}
+              <tr>
+                <td>
+                  <strong>{{ sp.user.get_full_name|default:sp.user.username }}</strong>
+                </td>
+                <td style="color:var(--muted);font-size:.85rem;">{{ sp.user.username }}</td>
+                <td>
+                  <span class="role-badge role-{{ sp.role }}">
+                    {% if sp.role == 'owner' %}👑{% elif sp.role == 'admin' %}🛡️{% else %}👁️{% endif %}
+                    {{ sp.get_role_display }}
+                  </span>
+                </td>
+                <td style="font-size:.8rem;color:var(--muted);">
+                  {{ sp.created_by.username|default:"—" }}
+                </td>
+                <td style="font-size:.78rem;color:var(--muted);">{{ sp.created_at|date:"M j, Y" }}</td>
+                <td>
+                  {% if sp.role != 'owner' %}
+                  <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+                    <!-- Change role -->
+                    <form method="post" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="change_role">
+                      <input type="hidden" name="user_id" value="{{ sp.user.id }}">
+                      <select name="new_role" onchange="this.form.submit()" class="staff-input" style="padding:5px 8px;font-size:.78rem;width:auto;">
+                        <option value="admin"     {% if sp.role == 'admin' %}selected{% endif %}>Admin</option>
+                        <option value="moderator" {% if sp.role == 'moderator' %}selected{% endif %}>Moderator</option>
+                      </select>
+                    </form>
+                    <!-- Delete -->
+                    <form method="post" style="display:inline;" onsubmit="return confirm('Delete {{ sp.user.username }}? This cannot be undone.');">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="user_id" value="{{ sp.user.id }}">
+                      <button type="submit" style="background:#fdf2f4;border:1px solid var(--pink);color:var(--red);border-radius:var(--r1);padding:5px 10px;font-size:.78rem;cursor:pointer;">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                  {% else %}
+                  <span style="font-size:.78rem;color:var(--muted);font-style:italic;">Protected</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="dash-empty">No staff accounts yet.</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<style>
+.staff-label {
+  font-size:.72rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--charcoal);display:block;margin-bottom:5px;
+}
+.staff-input {
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r1);font-family:var(--ff-b);font-size:.9rem;
+  color:var(--charcoal);background:var(--white);box-sizing:border-box;
+  transition:border-color .2s;-webkit-appearance:none;
+}
+.staff-input:focus { outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(181,39,58,.1); }
+
+.role-badge {
+  display:inline-flex;align-items:center;gap:.3rem;
+  border-radius:40px;padding:4px 12px;font-size:.75rem;font-weight:600;
+  border:1px solid;
+}
+.role-owner     { background:#fff8e1;color:#b8860b;border-color:#f0d060; }
+.role-admin     { background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0; }
+.role-moderator { background:var(--pink-bg);color:var(--red);border-color:var(--pink); }
+
+@media(max-width:700px){
+  .staff-manage-grid { grid-template-columns:1fr; }
+}
+</style>
+{% endblock %}

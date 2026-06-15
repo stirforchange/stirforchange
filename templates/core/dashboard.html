@@ -1,19 +1,32 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard — StirForChange{% endblock %}
 
 {% block content %}
 <div class="dashboard">
 
+  <!-- Header -->
   <div class="dash-header">
     <div class="container">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
         <div>
-          <h1>Dashboard</h1>
-          <p>Welcome back! Here's everything happening at StirForChange.</p>
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.35rem;">
+            <h1 style="margin:0;color:#fff;">Dashboard</h1>
+            <span class="role-badge role-{{ user_role }}">
+              {% if user_role == 'owner' %}👑 Owner
+              {% elif user_role == 'admin' %}🛡️ Admin
+              {% else %}👁️ Moderator{% endif %}
+            </span>
+          </div>
+          <p style="margin:0;color:rgba(255,255,255,.8);font-size:.88rem;">
+            Welcome back, {{ request.user.get_full_name|default:request.user.username }}!
+          </p>
         </div>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-          <a href="/admin/" class="btn btn-white" style="font-size:.8rem;padding:9px 18px;">Django Admin →</a>
-          <a href="/" class="btn" style="background:rgba(255,255,255,.15);color:#fff;font-size:.8rem;padding:9px 18px;">View Site</a>
+          {% if user_role == 'owner' %}
+          <a href="/staff/manage/" class="dash-hdr-btn">👥 Manage Staff</a>
+          {% endif %}
+          <a href="/" class="dash-hdr-btn">View Site →</a>
+          <a href="/staff/logout/" class="dash-hdr-btn" style="background:rgba(255,255,255,.1);">Sign Out</a>
         </div>
       </div>
     </div>
@@ -21,280 +34,308 @@
 
   <div class="dash-body">
 
-    <!-- ── STAT CARDS ── -->
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="dash-msg {% if msg.tags == 'error' %}dash-msg-err{% else %}dash-msg-ok{% endif %}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- STAT CARDS -->
     <div class="dash-stats">
-      <div class="dash-stat accent">
-        <div class="ds-label">💰 Total Donations</div>
-        <div class="ds-num">${{ total_donations|floatformat:0 }}</div>
-        <div class="ds-sub">${{ month_donations|floatformat:0 }} this month · {{ donation_count }} total</div>
-      </div>
       <div class="dash-stat">
-        <div class="ds-label">👤 Volunteers</div>
+        <div class="ds-icon">👤</div>
         <div class="ds-num">{{ total_volunteers }}</div>
+        <div class="ds-label">Volunteers</div>
         <div class="ds-sub">+{{ new_volunteers }} this week</div>
       </div>
       <div class="dash-stat">
-        <div class="ds-label">🏪 Business Partners</div>
+        <div class="ds-icon">🏪</div>
         <div class="ds-num">{{ total_businesses }}</div>
+        <div class="ds-label">Business Partners</div>
         <div class="ds-sub">+{{ new_businesses }} this week</div>
       </div>
-      <div class="dash-stat">
-        <div class="ds-label">🎙️ Episodes · 💬 Testimonials</div>
-        <div class="ds-num">{{ total_episodes }} · {{ testimonial_count }}</div>
-        <div class="ds-sub">Podcast episodes · Active testimonials</div>
+      {% if user_role == 'owner' or user_role == 'admin' %}
+      <div class="dash-stat accent">
+        <div class="ds-icon">💰</div>
+        <div class="ds-num">${{ total_donations|floatformat:0 }}</div>
+        <div class="ds-label">Total Donations</div>
+        <div class="ds-sub">${{ month_donations|floatformat:0 }} this month</div>
       </div>
+      <div class="dash-stat">
+        <div class="ds-icon">🎙️</div>
+        <div class="ds-num">{{ total_episodes }}</div>
+        <div class="ds-label">Episodes</div>
+        <div class="ds-sub">{{ testimonial_count }} testimonials active</div>
+      </div>
+      {% endif %}
     </div>
 
-    <!-- ── VOLUNTEERS ── -->
+    <!-- VOLUNTEERS -->
     <div class="dash-card" style="margin-bottom:1.5rem;">
       <div class="dash-card-head">
         <h3>👤 Volunteer Signups</h3>
-        <a href="/admin/core/volunteersignup/">Manage in admin →</a>
+        <span style="font-size:.78rem;color:var(--muted);">{{ total_volunteers }} total</span>
       </div>
       {% if volunteers_with_futures %}
-        {% for item in volunteers_with_futures %}
-        {% with v=item.vol futures=item.futures %}
+        {% for item in volunteers_with_futures %}{% with v=item.vol futures=item.futures %}
         <div class="vol-row">
           <div class="vol-left">
             <div class="vol-avatar">{{ v.first_name|first }}{{ v.last_name|first }}</div>
-            <div class="vol-info">
+            <div>
               <div class="vol-name">{{ v.first_name }} {{ v.last_name }}</div>
-              <div class="vol-detail">{{ v.email }}</div>
+              <div class="vol-detail">✉️ {{ v.email }}</div>
               {% if v.phone %}<div class="vol-detail">📞 {{ v.phone }}</div>{% endif %}
-              <div class="vol-detail">Age {{ v.age }} · {{ v.created_at|date:"M j, Y" }}</div>
+              <div class="vol-detail">🎂 Age {{ v.age }} · {{ v.created_at|date:"M j, Y" }}</div>
               {% if v.school %}<div class="vol-detail">🎓 {{ v.school }}</div>{% endif %}
             </div>
           </div>
-
           <div class="vol-mid">
-            <div class="vol-section-label">General Availability</div>
+            <div class="vol-sec-label">Weekly Availability</div>
             {% if v.avail_days %}
-              <div class="vol-days">
-                {% for day in v.avail_days.split %}
-                <span class="vol-day-pill">{{ day|cut:","|capfirst }}</span>
-                {% endfor %}
-              </div>
-            {% else %}
-              <span class="vol-na">Not specified</span>
-            {% endif %}
+              <div class="vol-days">{% for day in v.avail_days.split %}<span class="vol-day-pill">{{ day|cut:","|capfirst }}</span>{% endfor %}</div>
+            {% else %}<span class="vol-na">Not specified</span>{% endif %}
             {% if v.avail_start and v.avail_end %}
-              <div class="vol-time-pill">⏰ {{ v.avail_start }} – {{ v.avail_end }}</div>
-            {% elif v.avail_start %}
-              <div class="vol-time-pill">⏰ From {{ v.avail_start }}</div>
+            <div class="vol-time-pill">⏰ {{ v.avail_start }} – {{ v.avail_end }}</div>
             {% endif %}
           </div>
-
           <div class="vol-right">
-            <div class="vol-section-label">Specific Dates</div>
+            <div class="vol-sec-label">Specific Dates</div>
             {% if futures %}
               {% for f in futures %}
               <div class="vol-future-item">
                 <span class="vol-future-date">📅 {{ f.date }}</span>
-                {% if f.start and f.end %}
-                  <span class="vol-future-time">{{ f.start }} – {{ f.end }}</span>
-                {% elif f.start %}
-                  <span class="vol-future-time">From {{ f.start }}</span>
-                {% endif %}
+                {% if f.start and f.end %}<span class="vol-future-time">{{ f.start }} – {{ f.end }}</span>{% endif %}
               </div>
               {% endfor %}
-            {% else %}
-              <span class="vol-na">No specific dates</span>
-            {% endif %}
+            {% else %}<span class="vol-na">No specific dates</span>{% endif %}
           </div>
         </div>
-        {% endwith %}
-        {% endfor %}
+        {% endwith %}{% endfor %}
       {% else %}
         <div class="dash-empty">No volunteer signups yet.</div>
       {% endif %}
     </div>
 
-    <!-- ── BUSINESS PARTNERS ── -->
+    <!-- BUSINESS PARTNERS -->
     <div class="dash-card" style="margin-bottom:1.5rem;">
       <div class="dash-card-head">
         <h3>🏪 Business Partners</h3>
-        <a href="/admin/core/businesssignup/">Manage in admin →</a>
+        <span style="font-size:.78rem;color:var(--muted);">{{ total_businesses }} total</span>
       </div>
       {% if recent_businesses %}
-        <div style="overflow-x:auto;">
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Business</th>
-                <th>Contact</th>
-                <th>Address</th>
-                <th>Type</th>
-                <th>Surplus Food</th>
-                <th>Frequency</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for b in recent_businesses %}
-              <tr>
-                <td><strong>{{ b.business_name }}</strong></td>
-                <td>
-                  {{ b.contact_name }}<br>
-                  <span style="font-size:.75rem;color:var(--muted);">{{ b.email }}</span><br>
-                  <span style="font-size:.75rem;color:var(--muted);">{{ b.phone }}</span>
-                </td>
-                <td style="font-size:.8rem;color:var(--muted);">
-                  {{ b.street_address }}<br>{{ b.city }}, {{ b.state }} {{ b.zip_code }}
-                </td>
-                <td>
-                  <span class="dash-badge">{{ b.get_business_type_display }}</span>
-                </td>
-                <td style="font-size:.8rem;color:var(--muted);">{{ b.food_types|default:"—"|truncatewords:6 }}</td>
-                <td style="font-size:.8rem;color:var(--muted);">{{ b.frequency|default:"—" }}</td>
-                <td style="font-size:.78rem;color:var(--muted);">{{ b.created_at|date:"M j, Y" }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <div style="overflow-x:auto;">
+        <table class="dash-table">
+          <thead><tr><th>Business</th><th>Contact</th><th>Address</th><th>Type</th><th>Surplus Food</th><th>Signed Up</th></tr></thead>
+          <tbody>
+            {% for b in recent_businesses %}
+            <tr>
+              <td><strong>{{ b.business_name }}</strong></td>
+              <td>{{ b.contact_name }}<br><span class="td-muted">{{ b.email }}<br>{{ b.phone }}</span></td>
+              <td class="td-muted">{{ b.street_address }}<br>{{ b.city }}, {{ b.state }} {{ b.zip_code }}</td>
+              <td><span class="dash-badge">{{ b.get_business_type_display }}</span></td>
+              <td class="td-muted">{{ b.food_types|default:"—"|truncatewords:5 }}</td>
+              <td class="td-muted">{{ b.created_at|date:"M j, Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
       {% else %}
         <div class="dash-empty">No business signups yet.</div>
       {% endif %}
     </div>
 
-    <!-- ── DONATIONS ── -->
-    <div style="display:grid;grid-template-columns:240px 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+    {% if user_role == 'owner' or user_role == 'admin' %}
+
+    <!-- DONATIONS -->
+    <div style="display:grid;grid-template-columns:220px 1fr;gap:1.5rem;margin-bottom:1.5rem;">
       <div class="dash-card">
-        <div class="dash-card-head"><h3>By Method</h3><a href="/admin/core/donationrecord/add/">+ Add</a></div>
+        <div class="dash-card-head"><h3>By Method</h3></div>
         {% if by_method %}
-          <table class="dash-table">
-            <thead><tr><th>Method</th><th>Count</th><th>Total</th></tr></thead>
-            <tbody>
-              {% for row in by_method %}
-              <tr>
-                <td><span class="method-badge {{ row.method }}">{{ row.method|capfirst }}</span></td>
-                <td>{{ row.count }}</td>
-                <td><strong>${{ row.total|floatformat:0 }}</strong></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <div class="dash-empty">No donations yet.<br><a href="/admin/core/donationrecord/add/" style="color:var(--red);">Log one →</a></div>
-        {% endif %}
-      </div>
-
-      <div class="dash-card">
-        <div class="dash-card-head"><h3>💰 Recent Donations</h3><a href="/admin/core/donationrecord/">View all →</a></div>
-        {% if recent_donations %}
-          <table class="dash-table">
-            <thead><tr><th>Donor</th><th>Amount</th><th>Method</th><th>Note</th><th>Date</th></tr></thead>
-            <tbody>
-              {% for d in recent_donations %}
-              <tr>
-                <td>
-                  {{ d.donor_name|default:"Anonymous" }}<br>
-                  <span style="font-size:.75rem;color:var(--muted);">{{ d.donor_email }}</span>
-                </td>
-                <td><strong style="color:var(--red);">${{ d.amount }}</strong></td>
-                <td><span class="method-badge {{ d.method }}">{{ d.method|capfirst }}</span></td>
-                <td style="font-size:.78rem;color:var(--muted);">{{ d.note|default:"—"|truncatewords:5 }}</td>
-                <td style="font-size:.78rem;color:var(--muted);">{{ d.created_at|date:"M j, Y" }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <div class="dash-empty">No donations recorded yet.</div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- ── PODCAST ── -->
-    <div class="dash-card" style="margin-bottom:1.5rem;">
-      <div class="dash-card-head"><h3>🎙️ Podcast Episodes</h3><a href="/admin/core/podcastepisode/add/">+ Add Episode</a></div>
-      {% if recent_episodes %}
         <table class="dash-table">
-          <thead><tr><th>Title</th><th>Guest</th><th>Type</th><th>Published</th><th>Featured</th></tr></thead>
+          <thead><tr><th>Method</th><th>#</th><th>Total</th></tr></thead>
           <tbody>
-            {% for ep in recent_episodes %}
+            {% for row in by_method %}
             <tr>
-              <td><strong>{{ ep.title }}</strong></td>
-              <td style="color:var(--muted);font-size:.8rem;">{{ ep.guest_name }}{% if ep.guest_title %}<br><span style="font-size:.75rem;">{{ ep.guest_title }}</span>{% endif %}</td>
-              <td><span class="ep-type-badge {{ ep.episode_type }}">{{ ep.get_episode_type_display }}</span></td>
-              <td style="color:var(--muted);font-size:.78rem;">{{ ep.published_date|date:"M j, Y" }}</td>
-              <td>{% if ep.is_featured %}<span style="color:var(--red);">⭐ Yes</span>{% else %}<span style="color:var(--muted);">—</span>{% endif %}</td>
+              <td><span class="method-badge {{ row.method }}">{{ row.method|capfirst }}</span></td>
+              <td>{{ row.count }}</td>
+              <td><strong>${{ row.total|floatformat:0 }}</strong></td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <div class="dash-empty">No episodes yet. <a href="/admin/core/podcastepisode/add/" style="color:var(--red);">Add one →</a></div>
-      {% endif %}
+        {% else %}<div class="dash-empty">No donations yet.</div>{% endif %}
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <h3>💰 Recent Donations</h3>
+          {% if user_role == 'owner' %}
+          <a href="/dashboard/donation/add/" class="dash-action-btn">+ Log Donation</a>
+          {% endif %}
+        </div>
+        {% if recent_donations %}
+        <table class="dash-table">
+          <thead><tr><th>Donor</th><th>Amount</th><th>Method</th><th>Note</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for d in recent_donations %}
+            <tr>
+              <td>{{ d.donor_name|default:"Anonymous" }}<br><span class="td-muted">{{ d.donor_email }}</span></td>
+              <td><strong style="color:var(--red);">${{ d.amount }}</strong></td>
+              <td><span class="method-badge {{ d.method }}">{{ d.method|capfirst }}</span></td>
+              <td class="td-muted">{{ d.note|default:"—"|truncatewords:4 }}</td>
+              <td class="td-muted">{{ d.created_at|date:"M j, Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}<div class="dash-empty">No donations recorded yet.</div>{% endif %}
+      </div>
     </div>
 
-    <!-- ── QUICK LINKS ── -->
-    <div class="dash-quick-links">
-      <a href="/admin/core/volunteersignup/"  class="dash-quick"><div class="dq-icon">👤</div><div class="dq-label">Volunteers</div></a>
-      <a href="/admin/core/businesssignup/"   class="dash-quick"><div class="dq-icon">🏪</div><div class="dq-label">Businesses</div></a>
-      <a href="/admin/core/donationrecord/"   class="dash-quick"><div class="dq-icon">💰</div><div class="dq-label">Donations</div></a>
-      <a href="/admin/core/testimonial/"      class="dash-quick"><div class="dq-icon">💬</div><div class="dq-label">Testimonials</div></a>
-      <a href="/admin/core/podcastepisode/"   class="dash-quick"><div class="dq-icon">🎙️</div><div class="dq-label">Podcast</div></a>
-      <a href="/admin/auth/user/"             class="dash-quick"><div class="dq-icon">🔑</div><div class="dq-label">Users</div></a>
+    <!-- PODCAST -->
+    <div class="dash-card" style="margin-bottom:1.5rem;">
+      <div class="dash-card-head">
+        <h3>🎙️ Podcast Episodes</h3>
+      </div>
+      {% if recent_episodes %}
+      <table class="dash-table">
+        <thead><tr><th>Title</th><th>Guest</th><th>Type</th><th>Published</th><th>Featured</th></tr></thead>
+        <tbody>
+          {% for ep in recent_episodes %}
+          <tr>
+            <td><strong>{{ ep.title }}</strong></td>
+            <td class="td-muted">{{ ep.guest_name }}</td>
+            <td><span class="ep-type-badge {{ ep.episode_type }}">{{ ep.get_episode_type_display }}</span></td>
+            <td class="td-muted">{{ ep.published_date|date:"M j, Y" }}</td>
+            <td>{% if ep.is_featured %}<span style="color:var(--red);">⭐ Yes</span>{% else %}—{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<div class="dash-empty">No episodes yet.</div>{% endif %}
     </div>
+
+    {% endif %}
+
+    <!-- STAFF (owner only) -->
+    {% if user_role == 'owner' %}
+    <div class="dash-card" style="margin-bottom:1.5rem;">
+      <div class="dash-card-head">
+        <h3>👥 Staff Members</h3>
+        <a href="/staff/manage/" class="dash-action-btn">Manage Staff →</a>
+      </div>
+      {% if staff_members %}
+      <table class="dash-table">
+        <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Created By</th><th>Joined</th></tr></thead>
+        <tbody>
+          {% for sp in staff_members %}
+          <tr>
+            <td><strong>{{ sp.user.get_full_name|default:sp.user.username }}</strong></td>
+            <td class="td-muted">{{ sp.user.username }}</td>
+            <td>
+              <span class="role-badge role-{{ sp.role }}">
+                {% if sp.role == 'owner' %}👑{% elif sp.role == 'admin' %}🛡️{% else %}👁️{% endif %}
+                {{ sp.get_role_display }}
+              </span>
+            </td>
+            <td class="td-muted">{{ sp.created_by.username|default:"—" }}</td>
+            <td class="td-muted">{{ sp.created_at|date:"M j, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<div class="dash-empty">No staff yet. <a href="/staff/manage/" style="color:var(--red);">Create one →</a></div>{% endif %}
+    </div>
+    {% endif %}
 
   </div>
 </div>
 
 <style>
-/* ── Volunteer rows ─────────────────────────── */
-.vol-row {
-  display: grid;
-  grid-template-columns: 260px 200px 1fr;
-  gap: 0;
-  border-top: 1px solid var(--border);
-  padding: 1.25rem 1.5rem;
-  transition: background .15s;
+/* Header buttons */
+.dash-hdr-btn {
+  display:inline-flex;align-items:center;
+  background:rgba(255,255,255,.2);color:#fff;
+  border:1px solid rgba(255,255,255,.3);border-radius:var(--r2);
+  padding:8px 16px;font-size:.82rem;font-weight:500;
+  text-decoration:none;transition:all .18s;font-family:var(--ff-b);
 }
-.vol-row:hover { background: var(--pink-bg); }
-.vol-left  { display:flex; gap:.85rem; align-items:flex-start; }
-.vol-mid   { padding: 0 1.25rem; border-left: 1px solid var(--border); }
-.vol-right { padding: 0 0 0 1.25rem; border-left: 1px solid var(--border); }
-.vol-avatar {
-  width:40px;height:40px;border-radius:50%;
-  background:var(--pink);color:var(--red);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--ff-d);font-size:.9rem;font-weight:600;flex-shrink:0;
-}
-.vol-name   { font-size:.9rem;font-weight:500;color:var(--charcoal);margin-bottom:2px; }
+.dash-hdr-btn:hover { background:rgba(255,255,255,.3); }
+
+/* Role badges */
+.role-badge { display:inline-flex;align-items:center;gap:.3rem;border-radius:40px;padding:4px 12px;font-size:.75rem;font-weight:600;border:1px solid; }
+.role-owner     { background:#fff8e1;color:#b8860b;border-color:#f0d060; }
+.role-admin     { background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0; }
+.role-moderator { background:var(--pink-bg);color:var(--red);border-color:var(--pink); }
+
+/* Messages */
+.dash-msg { border-radius:var(--r2);padding:.85rem 1rem;margin-bottom:1rem;font-size:.88rem; }
+.dash-msg-ok  { background:#d4edda;border:1px solid #c3e6cb;color:#155724; }
+.dash-msg-err { background:#fdf2f4;border:1px solid var(--pink);color:var(--red); }
+
+/* Stat cards */
+.dash-stats { display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem; }
+.dash-stat { background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);padding:1.25rem 1.5rem;box-shadow:var(--s1); }
+.dash-stat.accent { background:linear-gradient(135deg,var(--red),#8D1D2E);color:#fff;border-color:transparent; }
+.dash-stat.accent .ds-label,.dash-stat.accent .ds-sub,.dash-stat.accent .ds-num { color:#fff; }
+.ds-icon  { font-size:1.5rem;margin-bottom:.35rem; }
+.ds-num   { font-size:2rem;font-weight:700;font-family:var(--ff-d);color:var(--charcoal);line-height:1; }
+.ds-label { font-size:.78rem;font-weight:600;color:var(--charcoal);margin:.25rem 0 .2rem;text-transform:uppercase;letter-spacing:.04em; }
+.ds-sub   { font-size:.72rem;color:var(--muted); }
+
+/* Cards */
+.dash-card { background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);box-shadow:var(--s1);overflow:hidden; }
+.dash-card-head { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--pink-bg); }
+.dash-card-head h3 { margin:0;font-size:.95rem;font-weight:600;color:var(--charcoal); }
+.dash-action-btn { font-size:.78rem;font-weight:500;color:var(--red);text-decoration:none;background:var(--pink);border:1px solid var(--border);border-radius:40px;padding:4px 12px;transition:all .15s; }
+.dash-action-btn:hover { background:var(--pink-light);border-color:var(--red); }
+.dash-empty { padding:1.5rem;text-align:center;color:var(--muted);font-size:.88rem; }
+
+/* Table */
+.dash-table { width:100%;border-collapse:collapse;font-size:.85rem; }
+.dash-table th { background:var(--pink-bg);color:var(--charcoal);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:10px 1.5rem;text-align:left;border-bottom:1px solid var(--border); }
+.dash-table td { padding:12px 1.5rem;border-bottom:1px solid var(--border);color:var(--charcoal); }
+.dash-table tr:last-child td { border-bottom:none; }
+.dash-table tr:hover td { background:#fdf8f9; }
+.td-muted { font-size:.78rem;color:var(--muted); }
+
+/* Badges */
+.dash-badge { display:inline-block;background:var(--pink-bg);color:var(--red);border-radius:40px;padding:3px 10px;font-size:.72rem;font-weight:500;border:1px solid var(--border); }
+.method-badge { display:inline-block;border-radius:40px;padding:3px 10px;font-size:.72rem;font-weight:600; }
+.method-badge.stripe { background:#e8f4fd;color:#1a6fa8; }
+.method-badge.zelle  { background:#f0fdf4;color:#166534; }
+.method-badge.check  { background:#fef9c3;color:#854d0e; }
+.method-badge.other  { background:var(--pink-bg);color:var(--red); }
+.ep-type-badge { display:inline-block;border-radius:40px;padding:3px 10px;font-size:.72rem;font-weight:500;background:var(--pink-bg);color:var(--red);border:1px solid var(--border); }
+
+/* Volunteer rows */
+.vol-row { display:grid;grid-template-columns:260px 200px 1fr;border-top:1px solid var(--border);padding:1.25rem 1.5rem;transition:background .15s; }
+.vol-row:hover { background:#fdf8f9; }
+.vol-left { display:flex;gap:.85rem;align-items:flex-start; }
+.vol-mid  { padding:0 1.25rem;border-left:1px solid var(--border); }
+.vol-right{ padding:0 0 0 1.25rem;border-left:1px solid var(--border); }
+.vol-avatar { width:42px;height:42px;border-radius:50%;background:var(--pink);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--ff-d);font-size:.95rem;font-weight:700;flex-shrink:0; }
+.vol-name   { font-size:.9rem;font-weight:600;color:var(--charcoal);margin-bottom:3px; }
 .vol-detail { font-size:.75rem;color:var(--muted);margin-top:2px; }
-.vol-section-label { font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:.5rem; }
+.vol-sec-label { font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:.5rem; }
 .vol-days   { display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem; }
 .vol-day-pill { background:var(--pink);color:var(--red);border-radius:40px;padding:3px 9px;font-size:.72rem;font-weight:500; }
-.vol-time-pill { display:inline-block;background:var(--pink-bg);border:1px solid var(--border);border-radius:var(--r1);padding:4px 10px;font-size:.78rem;color:var(--charcoal);font-weight:500; }
+.vol-time-pill { display:inline-block;background:var(--pink-bg);border:1px solid var(--border);border-radius:var(--r1);padding:4px 10px;font-size:.78rem;font-weight:500; }
 .vol-future-item { display:flex;gap:.5rem;align-items:center;margin-bottom:.35rem;flex-wrap:wrap; }
-.vol-future-date { font-size:.8rem;font-weight:500;color:var(--charcoal); }
+.vol-future-date { font-size:.8rem;font-weight:500; }
 .vol-future-time { font-size:.75rem;color:var(--muted);background:var(--pink-bg);border-radius:40px;padding:2px 8px;border:1px solid var(--border); }
 .vol-na { font-size:.8rem;color:var(--muted);font-style:italic; }
-.vol-info { flex:1; }
 
-/* ── Badges ─────────────────────────────────── */
-.dash-badge { display:inline-block;background:var(--pink-bg);color:var(--red);border-radius:40px;padding:3px 10px;font-size:.72rem;font-weight:500;border:1px solid var(--border); }
-
-/* ── Quick links ────────────────────────────── */
-.dash-quick-links { display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:2rem; }
-.dash-quick {
-  background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);
-  padding:1.25rem .75rem;text-align:center;text-decoration:none;
-  transition:all .2s;box-shadow:var(--s1);
-}
-.dash-quick:hover { border-color:var(--red);transform:translateY(-2px);box-shadow:var(--s2); }
-.dq-icon  { font-size:1.75rem;margin-bottom:.4rem; }
-.dq-label { font-size:.8rem;font-weight:500;color:var(--charcoal); }
+/* Body layout */
+.dash-body { max-width:1200px;margin:0 auto;padding:1.5rem; }
 
 @media(max-width:960px){
-  .vol-row { grid-template-columns:1fr; gap:.75rem; }
+  .dash-stats { grid-template-columns:1fr 1fr; }
+  .vol-row { grid-template-columns:1fr;gap:.75rem; }
   .vol-mid,.vol-right { padding:.75rem 0 0;border-left:none;border-top:1px solid var(--border); }
-  .dash-quick-links { grid-template-columns:repeat(3,1fr); }
 }
 @media(max-width:600px){
-  .dash-quick-links { grid-template-columns:repeat(2,1fr); }
+  .dash-stats { grid-template-columns:1fr; }
 }
 </style>
-
 {% endblock %}

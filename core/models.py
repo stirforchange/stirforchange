@@ -1,5 +1,28 @@
 from django.db import models
+from django.contrib.auth.models import User
 from datetime import date
+
+
+class StaffProfile(models.Model):
+    ROLE_CHOICES = [
+        ('owner',     'Owner'),
+        ('admin',     'Admin'),
+        ('moderator', 'Moderator'),
+    ]
+    user       = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role       = models.CharField(max_length=20, choices=ROLE_CHOICES, default='moderator')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_staff')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_owner(self):     return self.role == 'owner'
+    def is_admin(self):     return self.role in ('owner', 'admin')
+    def is_moderator(self): return self.role in ('owner', 'admin', 'moderator')
+
+    def __str__(self):
+        return f"{self.user.username} ({self.get_role_display()})"
+
+    class Meta:
+        verbose_name = 'Staff Profile'
 
 
 class VolunteerSignup(models.Model):
@@ -9,11 +32,9 @@ class VolunteerSignup(models.Model):
     phone           = models.CharField(max_length=20, blank=True)
     birthdate       = models.DateField()
     school          = models.CharField(max_length=200, blank=True)
-    # General weekly availability
-    avail_days      = models.CharField(max_length=300, blank=True, help_text='Comma-separated days')
-    avail_start     = models.CharField(max_length=10, blank=True, help_text='General start time e.g. 09:00')
-    avail_end       = models.CharField(max_length=10, blank=True, help_text='General end time e.g. 17:00')
-    # Future specific dates — JSON: [{"date":"2026-06-01","start":"09:30","end":"11:30"}, ...]
+    avail_days      = models.CharField(max_length=300, blank=True)
+    avail_start     = models.CharField(max_length=10, blank=True)
+    avail_end       = models.CharField(max_length=10, blank=True)
     future_dates    = models.TextField(blank=True, default='[]')
     created_at      = models.DateTimeField(auto_now_add=True)
 
