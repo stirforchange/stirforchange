@@ -1,101 +1,173 @@
 {% extends 'base.html' %}
-{% block title %}Podcast & Interviews{% endblock %}
+{% block title %}Podcast — StirForChange{% endblock %}
 
 {% block content %}
 
 <div class="page-hero">
-  <span class="tag">Conversations That Matter</span>
-  <h1>The <em>StirForChange</em> Podcast</h1>
-  <p>Aarohi sits down with food justice advocates, nonprofit leaders, community organizers, and inspiring young changemakers — in video, audio, and written interviews.</p>
+  <span class="tag">Stories & Conversations</span>
+  <h1>The StirForChange <em>Podcast</em></h1>
+  <p>Real conversations with volunteers, partners, and community leaders fighting food insecurity — one meal at a time.</p>
 </div>
 
 <section class="section">
   <div class="container">
-
     {% if episodes %}
-      <div class="ep-grid">
-        {% for ep in episodes %}
-        <div class="ep-card">
+    <div class="podcast-grid">
+      {% for ep in episodes %}
+      <div class="podcast-card">
 
-          {% if ep.episode_type == 'video' and ep.youtube_url %}
-            <div class="ep-thumb">
-              <iframe src="{{ ep.get_youtube_embed }}"
-                title="{{ ep.title }}"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen loading="lazy">
-              </iframe>
-            </div>
-          {% elif ep.episode_type == 'written' %}
-            <div class="ep-written-icon">
-              <span>📝</span>
-              <em>Written Interview</em>
-            </div>
-          {% elif ep.episode_type == 'audio' %}
-            <div class="ep-written-icon" style="background:var(--cream);">
-              <span>🎧</span>
-              <em>Audio / Podcast</em>
-            </div>
-          {% elif ep.thumbnail %}
-            <div class="ep-thumb">
-              <img src="{{ ep.thumbnail.url }}" alt="{{ ep.title }}" style="width:100%;height:100%;object-fit:cover;">
-            </div>
-          {% else %}
-            <div class="ep-thumb">🎙️</div>
-          {% endif %}
-
-          <div class="ep-body">
-            <div class="ep-meta">
-              <span class="ep-type-badge {{ ep.episode_type }}">
-                {% if ep.episode_type == 'video' %}▶ Video
-                {% elif ep.episode_type == 'written' %}📝 Written
-                {% else %}🎧 Audio{% endif %}
-              </span>
-              <span class="ep-date">{{ ep.published_date|date:"F j, Y" }}</span>
-            </div>
-            <h3>{{ ep.title }}</h3>
-            <div class="ep-guest">
-              {{ ep.guest_name }}{% if ep.guest_title %} · {{ ep.guest_title }}{% endif %}
-            </div>
-            <p>{{ ep.description|truncatewords:28 }}</p>
-
-            {% if ep.episode_type == 'written' and ep.content %}
-              <details style="margin-top:1rem;">
-                <summary style="cursor:pointer;font-size:.82rem;font-weight:500;color:var(--terra);list-style:none;">
-                  Read Interview ↓
-                </summary>
-                <div style="margin-top:1rem;font-size:.85rem;color:var(--muted);line-height:1.85;border-top:1px solid var(--border);padding-top:1rem;white-space:pre-wrap;">{{ ep.content }}</div>
-              </details>
-            {% endif %}
-
-            <div class="ep-links">
-              {% if ep.youtube_url %}
-                <a href="{{ ep.youtube_url }}" target="_blank" rel="noopener" class="ep-link">▶ Watch on YouTube</a>
-              {% endif %}
-              {% if ep.spotify_url %}
-                <a href="{{ ep.spotify_url }}" target="_blank" rel="noopener" class="ep-link">🎧 Listen on Spotify</a>
-              {% endif %}
-            </div>
+        {% if ep.episode_type == 'video' and ep.youtube_url %}
+          <!-- Embedded YouTube player -->
+          <div class="podcast-video-wrap">
+            <iframe
+              src="{{ ep.get_youtube_embed }}?rel=0&modestbranding=1"
+              title="{{ ep.title }}"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
           </div>
 
-        </div>
-        {% endfor %}
-      </div>
+        {% elif ep.episode_type == 'audio' %}
+          <div class="podcast-audio-thumb">
+            <div class="audio-icon">🎙️</div>
+            <div class="audio-label">AUDIO EPISODE</div>
+          </div>
 
+        {% else %}
+          <div class="podcast-written-thumb">
+            <div class="written-icon">📝</div>
+            <div class="written-label">WRITTEN INTERVIEW</div>
+          </div>
+        {% endif %}
+
+        <div class="podcast-card-body">
+          <div class="podcast-meta-row">
+            <span class="ep-type-tag ep-{{ ep.episode_type }}">
+              {% if ep.episode_type == 'video' %}▶ VIDEO
+              {% elif ep.episode_type == 'audio' %}🎵 AUDIO
+              {% else %}📝 WRITTEN{% endif %}
+            </span>
+            <span class="ep-date">{{ ep.published_date|date:"F j, Y" }}</span>
+            {% if ep.is_featured %}<span class="ep-featured">⭐ Featured</span>{% endif %}
+          </div>
+
+          <h3 class="podcast-title">{{ ep.title }}</h3>
+          <div class="podcast-guest">{{ ep.guest_name }}{% if ep.guest_title %} · <span style="font-weight:400;">{{ ep.guest_title }}</span>{% endif %}</div>
+          <p class="podcast-desc">{{ ep.description }}</p>
+
+          {% if ep.episode_type == 'written' and ep.content %}
+          <details class="written-content">
+            <summary>Read Interview ↓</summary>
+            <div class="written-body">{{ ep.content|linebreaks }}</div>
+          </details>
+          {% endif %}
+
+          {% if ep.episode_type == 'audio' %}
+          <div style="margin-top:1rem;">
+            {% if ep.spotify_url %}
+            <a href="{{ ep.spotify_url }}" target="_blank" class="podcast-link spotify-link">🎵 Listen on Spotify</a>
+            {% endif %}
+            {% if ep.youtube_url %}
+            <a href="{{ ep.youtube_url }}" target="_blank" class="podcast-link yt-link">▶ Listen on YouTube</a>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
     {% else %}
-      <div class="ep-no-content">
-        <div style="font-size:2.5rem;margin-bottom:.75rem;">🎙️</div>
-        <h3>Episodes coming soon!</h3>
-        <p style="margin-top:.5rem;color:var(--muted);font-size:.88rem;">Aarohi is recording conversations with inspiring changemakers. Check back soon — or follow us on Instagram for updates.</p>
-        <a href="https://www.instagram.com/stirforchange/" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:1.5rem;">Follow on Instagram</a>
-        <div style="margin-top:2rem;background:var(--warm-white);border:1px solid var(--border);border-radius:var(--r-md);padding:1.25rem;font-size:.82rem;color:var(--muted);text-align:left;">
-          <strong style="color:var(--charcoal);">💡 Admin tip:</strong>
-          Go to <a href="/admin/core/podcastepisode/add/" style="color:var(--terra);">/admin/ → Podcast Episodes → Add</a>.
-          Choose the episode type: <em>Video</em> (paste YouTube URL), <em>Written</em> (paste full interview text), or <em>Audio</em> (add Spotify link).
-        </div>
-      </div>
+    <div style="text-align:center;padding:4rem 0;color:var(--muted);">
+      <div style="font-size:3rem;margin-bottom:1rem;">🎙️</div>
+      <h3 style="color:var(--charcoal);">Episodes coming soon!</h3>
+      <p>We're working on some great conversations. Check back soon.</p>
+    </div>
     {% endif %}
-
   </div>
 </section>
+
+<style>
+/* Grid */
+.podcast-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:1.75rem; }
+
+/* Card */
+.podcast-card {
+  background:var(--white);
+  border:1.5px solid var(--border);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  box-shadow:var(--s1);
+  transition:transform .2s, box-shadow .2s;
+  display:flex;
+  flex-direction:column;
+}
+.podcast-card:hover { transform:translateY(-3px);box-shadow:var(--s2); }
+
+/* Video embed */
+.podcast-video-wrap {
+  position:relative;
+  width:100%;
+  padding-top:56.25%;
+  background:#000;
+}
+.podcast-video-wrap iframe {
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  border:none;
+}
+
+/* Audio thumb */
+.podcast-audio-thumb {
+  background:linear-gradient(135deg,var(--red),#8D1D2E);
+  padding:2.5rem;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:160px;
+}
+.audio-icon  { font-size:2.5rem;margin-bottom:.5rem; }
+.audio-label { font-size:.72rem;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.8);text-transform:uppercase; }
+
+/* Written thumb */
+.podcast-written-thumb {
+  background:var(--pink-bg);
+  border-bottom:1.5px solid var(--border);
+  padding:2.5rem;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:160px;
+}
+.written-icon  { font-size:2.5rem;margin-bottom:.5rem; }
+.written-label { font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--red);text-transform:uppercase; }
+
+/* Card body */
+.podcast-card-body { padding:1.5rem;display:flex;flex-direction:column;flex:1; }
+.podcast-meta-row  { display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap; }
+.ep-type-tag { font-size:.68rem;font-weight:700;letter-spacing:.07em;border-radius:40px;padding:3px 10px;text-transform:uppercase; }
+.ep-video   { background:#fee2e2;color:#b91c1c; }
+.ep-audio   { background:#e0f2fe;color:#0369a1; }
+.ep-written { background:#f0fdf4;color:#15803d; }
+.ep-date    { font-size:.78rem;color:var(--muted); }
+.ep-featured{ font-size:.72rem;background:#fff8e1;color:#b8860b;border-radius:40px;padding:2px 8px; }
+.podcast-title { font-family:var(--ff-d);font-size:1.2rem;color:var(--charcoal);margin:0 0 .35rem; }
+.podcast-guest { font-size:.85rem;font-weight:600;color:var(--red);margin-bottom:.6rem; }
+.podcast-desc  { font-size:.88rem;color:var(--muted);line-height:1.6;flex:1; }
+
+/* Written interview expand */
+.written-content { margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem; }
+.written-content summary { font-size:.85rem;font-weight:500;color:var(--red);cursor:pointer;list-style:none;outline:none; }
+.written-content summary::-webkit-details-marker { display:none; }
+.written-body { margin-top:1rem;font-size:.88rem;color:var(--charcoal);line-height:1.75; }
+
+/* Audio links */
+.podcast-link { display:inline-flex;align-items:center;gap:.4rem;border-radius:40px;padding:8px 16px;font-size:.82rem;font-weight:500;text-decoration:none;margin-right:.5rem;margin-top:.35rem;transition:all .15s; }
+.spotify-link { background:#1DB954;color:#fff; }
+.spotify-link:hover { background:#17a349; }
+.yt-link { background:#FF0000;color:#fff; }
+.yt-link:hover { background:#cc0000; }
+
+@media(max-width:768px){
+  .podcast-grid { grid-template-columns:1fr; }
+}
+</style>
 
 {% endblock %}
