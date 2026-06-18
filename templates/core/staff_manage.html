@@ -11,161 +11,188 @@
           <p style="margin:.25rem 0 0;color:rgba(255,255,255,.8);font-size:.88rem;">Create and manage admin and moderator accounts</p>
         </div>
         <div style="display:flex;gap:.75rem;">
-          <a href="/dashboard/" class="dash-hdr-btn">← Dashboard</a>
-          <a href="/staff/logout/" class="dash-hdr-btn" style="background:rgba(255,255,255,.1);">Sign Out</a>
+          <a href="/dashboard/" class="sm-hdr-btn">← Dashboard</a>
+          <a href="/staff/logout/" class="sm-hdr-btn" style="background:rgba(255,255,255,.1);">Sign Out</a>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="dash-body" style="max-width:1100px;margin:0 auto;padding:1.5rem;">
+  <div style="max-width:1200px;margin:0 auto;padding:1.5rem;">
 
     {% if messages %}{% for msg in messages %}
-    <div class="dash-msg {% if msg.tags == 'error' %}dash-msg-err{% else %}dash-msg-ok{% endif %}">{{ msg }}</div>
+    <div style="border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.88rem;
+      background:{% if msg.tags == 'error' %}#fdf2f4{% else %}#d4edda{% endif %};
+      border:1px solid {% if msg.tags == 'error' %}#f2c4cc{% else %}#c3e6cb{% endif %};
+      color:{% if msg.tags == 'error' %}#b5273a{% else %}#155724{% endif %};">
+      {{ msg }}
+    </div>
     {% endfor %}{% endif %}
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+    <div style="display:grid;grid-template-columns:360px 1fr;gap:1.5rem;align-items:start;">
 
-      <!-- Create new staff -->
-      <div class="dash-card">
-        <div class="dash-card-head"><h3>➕ Create Staff Account</h3></div>
-        <form method="post" style="padding:1.5rem;">
+      <!-- ── Create new account ── -->
+      <div class="sm-card">
+        <div class="sm-card-head"><h3>➕ Create New Account</h3></div>
+        <form method="post" style="padding:1.25rem 1.5rem 1.5rem;">
           {% csrf_token %}
           <input type="hidden" name="action" value="create">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-            <div><label class="dash-label">First Name</label><input type="text" name="first_name" class="dash-input" placeholder="First name"></div>
-            <div><label class="dash-label">Last Name</label><input type="text" name="last_name" class="dash-input" placeholder="Last name"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
+            <div><label class="sm-label">First Name</label><input type="text" name="first_name" class="sm-input" placeholder="First"></div>
+            <div><label class="sm-label">Last Name</label><input type="text" name="last_name" class="sm-input" placeholder="Last"></div>
           </div>
-          <div style="margin-top:.75rem;"><label class="dash-label">Username *</label><input type="text" name="username" class="dash-input" placeholder="e.g. sarah_admin" required></div>
-          <div style="margin-top:.75rem;"><label class="dash-label">Password *</label><input type="password" name="password" class="dash-input" placeholder="Min. 6 characters" required></div>
-          <div style="margin-top:.75rem;"><label class="dash-label">Role *</label>
-            <select name="role" class="dash-input">
-              <option value="admin">🛡️ Admin — manage everything except owner settings</option>
-              <option value="moderator" selected>👁️ Moderator — view volunteers & businesses only</option>
+          <div style="margin-top:.75rem;"><label class="sm-label">Username *</label><input type="text" name="username" class="sm-input" placeholder="e.g. sarah_admin" required></div>
+          <div style="margin-top:.75rem;"><label class="sm-label">Password *</label><input type="password" name="password" class="sm-input" placeholder="Min. 6 characters" required></div>
+          <div style="margin-top:.75rem;"><label class="sm-label">Role *</label>
+            <select name="role" class="sm-input">
+              <option value="admin">🛡️ Admin</option>
+              <option value="moderator" selected>👁️ Moderator</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.25rem;">Create Account →</button>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.1rem;">Create Account →</button>
         </form>
+
+        <!-- Role legend -->
+        <div style="border-top:1px solid var(--border);padding:1rem 1.5rem;">
+          <div class="sm-role-info">
+            <span class="sm-role-badge sm-owner">👑 Owner</span>
+            <span style="font-size:.78rem;color:var(--muted);">Full access, protected</span>
+          </div>
+          <div class="sm-role-info">
+            <span class="sm-role-badge sm-admin">🛡️ Admin</span>
+            <span style="font-size:.78rem;color:var(--muted);">Edit all data, no staff management</span>
+          </div>
+          <div class="sm-role-info">
+            <span class="sm-role-badge sm-mod">👁️ Moderator</span>
+            <span style="font-size:.78rem;color:var(--muted);">View volunteers & businesses only</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Role descriptions -->
-      <div style="display:flex;flex-direction:column;gap:1rem;">
-        <div class="dash-card">
-          <div class="dash-card-head"><h3><span class="role-badge role-owner">👑 Owner</span></h3></div>
-          <div style="padding:1rem 1.5rem;font-size:.85rem;color:var(--muted);line-height:1.7;">Full access. Creates/deletes staff. Manages all data, donations, podcast, testimonials. Cannot be deleted or demoted.</div>
+      <!-- ── Staff list ── -->
+      <div class="sm-card">
+        <div class="sm-card-head">
+          <h3>👥 Current Staff</h3>
+          <span style="font-size:.78rem;color:var(--muted);">{{ staff_members|length }} members</span>
         </div>
-        <div class="dash-card">
-          <div class="dash-card-head"><h3><span class="role-badge role-admin">🛡️ Admin</span></h3></div>
-          <div style="padding:1rem 1.5rem;font-size:.85rem;color:var(--muted);line-height:1.7;">Can view and edit all data including donations, podcast, testimonials. Cannot manage staff accounts.</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-card-head"><h3><span class="role-badge role-moderator">👁️ Moderator</span></h3></div>
-          <div style="padding:1rem 1.5rem;font-size:.85rem;color:var(--muted);line-height:1.7;">Read-only. Can only view volunteer and business signups. No editing or deleting.</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Staff list -->
-    <div class="dash-card" style="margin-top:1.5rem;">
-      <div class="dash-card-head"><h3>👥 Current Staff</h3><span style="font-size:.78rem;color:var(--muted);">{{ staff_members|length }} members</span></div>
-      {% if staff_members %}
-      <table class="dash-table">
-        <thead>
-          <tr><th>Name</th><th>Username</th><th>Role</th><th>Created By</th><th>Joined</th><th>Change Role</th><th>Change Password</th><th>Delete</th></tr>
-        </thead>
-        <tbody>
+        {% if staff_members %}
           {% for sp in staff_members %}
-          <tr>
-            <td><strong>{{ sp.user.get_full_name|default:"—" }}</strong></td>
-            <td class="td-muted">{{ sp.user.username }}</td>
-            <td><span class="role-badge role-{{ sp.role }}">{% if sp.role == 'owner' %}👑{% elif sp.role == 'admin' %}🛡️{% else %}👁️{% endif %} {{ sp.get_role_display }}</span></td>
-            <td class="td-muted">{{ sp.created_by.username|default:"—" }}</td>
-            <td class="td-muted">{{ sp.created_at|date:"M j, Y" }}</td>
+          <div class="sm-staff-row {% if sp.role == 'owner' %}sm-owner-row{% endif %}">
 
-            <!-- Change role -->
-            <td>
-              {% if sp.role != 'owner' %}
-              <form method="post">
+            <!-- Avatar + info -->
+            <div class="sm-staff-info">
+              <div class="sm-avatar sm-av-{{ sp.role }}">
+                {% if sp.role == 'owner' %}👑{% elif sp.role == 'admin' %}🛡️{% else %}👁️{% endif %}
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:.9rem;color:var(--charcoal);">
+                  {{ sp.user.get_full_name|default:sp.user.username }}
+                </div>
+                <div style="font-size:.75rem;color:var(--muted);">@{{ sp.user.username }} · {{ sp.get_role_display }}</div>
+                <div style="font-size:.72rem;color:var(--muted);margin-top:1px;">Joined {{ sp.created_at|date:"M j, Y" }}</div>
+              </div>
+            </div>
+
+            {% if sp.role != 'owner' %}
+            <!-- Edit forms -->
+            <div class="sm-edit-forms">
+
+              <!-- Name + Username -->
+              <form method="post" class="sm-form-row">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit_info">
+                <input type="hidden" name="user_id" value="{{ sp.user.id }}">
+                <input type="text" name="first_name" value="{{ sp.user.first_name }}" placeholder="First" class="sm-input sm-input-sm">
+                <input type="text" name="last_name"  value="{{ sp.user.last_name }}"  placeholder="Last"  class="sm-input sm-input-sm">
+                <input type="text" name="username"   value="{{ sp.user.username }}"   placeholder="Username" class="sm-input sm-input-sm">
+                <button type="submit" class="sm-btn sm-btn-blue">Save Name</button>
+              </form>
+
+              <!-- Role -->
+              <form method="post" class="sm-form-row">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="change_role">
                 <input type="hidden" name="user_id" value="{{ sp.user.id }}">
-                <div style="display:flex;gap:.4rem;align-items:center;">
-                  <select name="new_role" class="dash-input" style="padding:5px 8px;font-size:.78rem;width:auto;">
-                    <option value="admin"     {% if sp.role == 'admin' %}selected{% endif %}>Admin</option>
-                    <option value="moderator" {% if sp.role == 'moderator' %}selected{% endif %}>Moderator</option>
-                  </select>
-                  <button type="submit" class="action-btn edit-btn" style="white-space:nowrap;">Save</button>
-                </div>
+                <select name="new_role" class="sm-input sm-input-sm" style="width:130px;">
+                  <option value="admin"     {% if sp.role == 'admin' %}selected{% endif %}>🛡️ Admin</option>
+                  <option value="moderator" {% if sp.role == 'moderator' %}selected{% endif %}>👁️ Moderator</option>
+                </select>
+                <button type="submit" class="sm-btn sm-btn-blue">Change Role</button>
               </form>
-              {% else %}<span class="td-muted">Protected</span>{% endif %}
-            </td>
 
-            <!-- Change password -->
-            <td>
-              {% if sp.role != 'owner' %}
-              <form method="post">
+              <!-- Password -->
+              <form method="post" class="sm-form-row">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="change_password">
                 <input type="hidden" name="user_id" value="{{ sp.user.id }}">
-                <div style="display:flex;gap:.4rem;align-items:center;">
-                  <input type="password" name="new_password" placeholder="New password" class="dash-input" style="padding:5px 8px;font-size:.78rem;width:120px;">
-                  <button type="submit" class="action-btn edit-btn" style="white-space:nowrap;">Set</button>
-                </div>
+                <input type="password" name="new_password" placeholder="New password" class="sm-input sm-input-sm" style="width:160px;">
+                <button type="submit" class="sm-btn sm-btn-blue">Set Password</button>
               </form>
-              {% else %}<span class="td-muted">Protected</span>{% endif %}
-            </td>
 
-            <!-- Delete -->
-            <td>
-              {% if sp.role != 'owner' %}
+              <!-- Delete -->
               <form method="post" onsubmit="return confirm('Delete {{ sp.user.username }}? This cannot be undone.');">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="user_id" value="{{ sp.user.id }}">
-                <button type="submit" class="action-btn delete-btn">🗑️ Delete</button>
+                <button type="submit" class="sm-btn sm-btn-red">🗑️ Delete Account</button>
               </form>
-              {% else %}<span class="td-muted">Protected</span>{% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <div class="dash-empty">No staff accounts yet.</div>
-      {% endif %}
-    </div>
 
+            </div>
+            {% else %}
+            <div style="padding:.75rem 1.5rem;font-size:.82rem;color:var(--muted);font-style:italic;">
+              Owner account is protected and cannot be edited or deleted.
+            </div>
+            {% endif %}
+
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.88rem;">No staff accounts yet.</div>
+        {% endif %}
+      </div>
+
+    </div>
   </div>
 </div>
 
 <style>
-.dash-hdr-btn { display:inline-flex;align-items:center;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:var(--r2);padding:8px 16px;font-size:.82rem;font-weight:500;text-decoration:none;transition:all .18s; }
-.dash-hdr-btn:hover { background:rgba(255,255,255,.3); }
-.role-badge { display:inline-flex;align-items:center;gap:.3rem;border-radius:40px;padding:4px 12px;font-size:.75rem;font-weight:600;border:1px solid; }
-.role-owner     { background:#fff8e1;color:#b8860b;border-color:#f0d060; }
-.role-admin     { background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0; }
-.role-moderator { background:var(--pink-bg);color:var(--red);border-color:var(--pink); }
-.dash-msg { border-radius:var(--r2);padding:.85rem 1rem;margin-bottom:1rem;font-size:.88rem; }
-.dash-msg-ok  { background:#d4edda;border:1px solid #c3e6cb;color:#155724; }
-.dash-msg-err { background:#fdf2f4;border:1px solid var(--pink);color:var(--red); }
-.dash-card { background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);box-shadow:var(--s1);overflow:hidden; }
-.dash-card-head { display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--pink-bg); }
-.dash-card-head h3 { margin:0;font-size:.95rem;font-weight:600;color:var(--charcoal); }
-.dash-empty { padding:1.5rem;text-align:center;color:var(--muted);font-size:.88rem; }
-.dash-table { width:100%;border-collapse:collapse;font-size:.82rem; }
-.dash-table th { background:var(--pink-bg);color:var(--charcoal);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;padding:9px 1rem;text-align:left;border-bottom:1px solid var(--border); }
-.dash-table td { padding:10px 1rem;border-bottom:1px solid var(--border);color:var(--charcoal);vertical-align:middle; }
-.dash-table tr:last-child td { border-bottom:none; }
-.dash-table tr:hover td { background:#fdf8f9; }
-.td-muted { font-size:.78rem;color:var(--muted); }
-.dash-input { padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r1);font-family:var(--ff-b);font-size:.9rem;color:var(--charcoal);background:var(--white);box-sizing:border-box;transition:border-color .2s;-webkit-appearance:none;width:100%; }
-.dash-input:focus { outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(181,39,58,.1); }
-.dash-label { font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--charcoal);display:block;margin-bottom:5px; }
-.action-btn { display:inline-flex;align-items:center;gap:.3rem;border-radius:var(--r1);padding:5px 10px;font-size:.75rem;font-weight:500;cursor:pointer;border:1px solid;text-decoration:none;transition:all .15s;font-family:var(--ff-b); }
-.edit-btn   { background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0; }
-.edit-btn:hover { background:#d0e8f8; }
-.delete-btn { background:#fdf2f4;color:var(--red);border-color:var(--pink); }
-.delete-btn:hover { background:var(--pink); }
-@media(max-width:768px){ .staff-grid { grid-template-columns:1fr; } }
+.sm-hdr-btn { display:inline-flex;align-items:center;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:.82rem;font-weight:500;text-decoration:none;transition:all .18s; }
+.sm-hdr-btn:hover { background:rgba(255,255,255,.3); }
+.sm-card { background:var(--white);border:1.5px solid var(--border);border-radius:12px;box-shadow:var(--s1);overflow:hidden; }
+.sm-card-head { display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-bottom:1px solid var(--border);background:var(--pink-bg); }
+.sm-card-head h3 { margin:0;font-size:.95rem;font-weight:600;color:var(--charcoal); }
+.sm-label { font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--charcoal);display:block;margin-bottom:4px; }
+.sm-input { padding:9px 11px;border:1.5px solid var(--border);border-radius:7px;font-family:var(--ff-b);font-size:.88rem;color:var(--charcoal);background:var(--white);transition:border-color .2s;-webkit-appearance:none;width:100%;box-sizing:border-box; }
+.sm-input:focus { outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(181,39,58,.1); }
+.sm-input-sm { width:auto!important;flex:1; }
+
+.sm-role-info { display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem; }
+.sm-role-badge { display:inline-flex;align-items:center;gap:.3rem;border-radius:40px;padding:3px 10px;font-size:.72rem;font-weight:600;border:1px solid;white-space:nowrap; }
+.sm-owner { background:#fff8e1;color:#b8860b;border-color:#f0d060; }
+.sm-admin { background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0; }
+.sm-mod   { background:var(--pink-bg);color:var(--red);border-color:var(--pink); }
+
+.sm-staff-row { border-top:1.5px solid var(--border);padding:1.25rem 1.5rem; }
+.sm-owner-row { background:#fffef5; }
+.sm-staff-info { display:flex;align-items:center;gap:.85rem;margin-bottom:1rem; }
+.sm-avatar { width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0; }
+.sm-av-owner { background:#fff8e1; }
+.sm-av-admin { background:#e8f4fd; }
+.sm-av-moderator { background:var(--pink-bg); }
+
+.sm-edit-forms { display:flex;flex-direction:column;gap:.6rem; }
+.sm-form-row { display:flex;align-items:center;gap:.5rem;flex-wrap:wrap; }
+.sm-btn { display:inline-flex;align-items:center;border-radius:7px;padding:8px 14px;font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid;transition:all .15s;font-family:var(--ff-b);white-space:nowrap; }
+.sm-btn-blue { background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0; }
+.sm-btn-blue:hover { background:#d0e8f8; }
+.sm-btn-red  { background:#fdf2f4;color:var(--red);border-color:var(--pink); }
+.sm-btn-red:hover  { background:var(--pink); }
+
+@media(max-width:900px){
+  .sm-grid { grid-template-columns:1fr!important; }
+  .sm-form-row { flex-direction:column;align-items:stretch; }
+  .sm-input-sm { width:100%!important; }
+}
 </style>
 {% endblock %}

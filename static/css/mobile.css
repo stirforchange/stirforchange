@@ -1,0 +1,107 @@
+/* ═══ MOBILE RESPONSIVE ════════════════════════════════════ */
+
+@media(max-width: 768px) {
+
+  /* ── Navbar ── */
+  .navbar { height: 60px; padding: 0 1rem; }
+  .nav-logo img { height: 44px; }
+  main, .main { padding-top: 60px; }
+  .nav-links { top: 60px; }
+
+  /* ── Hero ── */
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 2.5rem 1.25rem 2rem;
+    gap: 2rem;
+    min-height: auto;
+  }
+  .hero h1 { font-size: 2rem; line-height: 1.2; }
+  .hero-desc { font-size: .92rem; }
+  .hero-actions { flex-direction: column; gap: .6rem; }
+  .hero-actions .btn { width: 100%; text-align: center; padding: 13px 20px; }
+  .hero-panel { padding: 1.5rem; }
+  .stats-3 { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .stat-box .num { font-size: 1.3rem; }
+  .stat-box .lbl { font-size: .6rem; }
+
+  /* ── Section ── */
+  .section { padding: 3rem 0; }
+  .container { padding: 0 1.1rem; }
+  .section-header { margin-bottom: 2rem; }
+  .section-header h2 { font-size: 1.75rem; }
+
+  /* ── Carousel ── */
+  .c-wrap { padding: 0 2.5rem; }
+  .slide { padding: 2rem 1.5rem; min-height: 260px; }
+  .slide h3 { font-size: 1.15rem; }
+  .slide p { font-size: .88rem; }
+  .slide-first .slide-big-logo img { height: 80px; }
+  .slide-title { font-size: 1.5rem; }
+
+  /* ── Steps ── */
+  .steps-grid { grid-template-columns: 1fr; gap: 1rem; }
+
+  /* ── Testimonials ── */
+  .t-grid { grid-template-columns: 1fr; gap: 1.1rem; }
+
+  /* ── Page hero ── */
+  .page-hero { padding: 3rem 1.25rem 2rem; }
+  .page-hero h1 { font-size: 1.8rem; }
+  .page-hero p { font-size: .9rem; }
+
+  /* ── Forms (volunteer / business) ── */
+  .form-layout { grid-template-columns: 1fr; padding: 2rem 0 3rem; gap: 2rem; }
+  .form-card { padding: 1.5rem; }
+  .form-sidebar { padding: 0; }
+  .form-row { grid-template-columns: 1fr; gap: .75rem; }
+  .avail-time-row { flex-direction: column; gap: .75rem; }
+  .avail-time-sep { display: none; }
+  .days-grid { grid-template-columns: repeat(2, 1fr); }
+  .future-row-fields { grid-template-columns: 1fr 1fr; }
+  .future-row-fields > :first-child { grid-column: 1 / -1; }
+
+  /* ── Donate ── */
+  .donate-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .donate-amounts { grid-template-columns: repeat(2, 1fr); }
+
+  /* ── About ── */
+  .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+
+  /* ── Podcast ── */
+  .podcast-grid { grid-template-columns: 1fr; }
+
+  /* ── Footer ── */
+  .footer-grid { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
+  .footer-links { justify-content: center; }
+  footer { padding: 3rem 1.25rem 1.5rem; }
+
+  /* ── Dashboard ── */
+  .dash-stats { grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .dash-stat .ds-num { font-size: 1.5rem; }
+  .vol-row { grid-template-columns: 1fr; gap: .75rem; }
+  .vol-mid, .vol-right, .row-actions {
+    padding: .6rem 0 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+  .dash-table { font-size: .78rem; }
+  .dash-table th, .dash-table td { padding: 8px .75rem; }
+
+  /* ── Staff manage ── */
+  .sm-form-row { flex-direction: column; align-items: stretch; }
+  .sm-input-sm { width: 100% !important; }
+
+}
+
+@media(max-width: 480px) {
+  .hero h1 { font-size: 1.65rem; }
+  .hero-panel { padding: 1.25rem; }
+  .stats-3 { grid-template-columns: 1fr; gap: .5rem; }
+  .c-wrap { padding: 0 2rem; }
+  .days-grid { grid-template-columns: 1fr 1fr; }
+  .future-row-fields { grid-template-columns: 1fr; }
+  .donate-amounts { grid-template-columns: 1fr 1fr; }
+  .dash-stats { grid-template-columns: 1fr; }
+  .dash-hdr-btn { padding: 7px 12px; font-size: .78rem; }
+  .podcast-card-body { padding: 1rem; }
+}

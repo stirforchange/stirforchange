@@ -435,7 +435,27 @@ def staff_manage(request):
             except User.DoesNotExist:
                 messages.error(request, "User not found.")
 
-        elif action == 'change_password':
+        elif action == 'edit_info':
+            user_id    = request.POST.get('user_id')
+            first_name = request.POST.get('first_name','').strip()
+            last_name  = request.POST.get('last_name','').strip()
+            username   = request.POST.get('username','').strip()
+            try:
+                target = User.objects.get(id=user_id)
+                if hasattr(target, 'profile') and target.profile.role == 'owner':
+                    messages.error(request, "Cannot edit the owner account.")
+                elif username and User.objects.filter(username=username).exclude(id=user_id).exists():
+                    messages.error(request, f"Username '{username}' is already taken.")
+                else:
+                    if first_name: target.first_name = first_name
+                    if last_name:  target.last_name  = last_name
+                    if username:   target.username   = username
+                    target.save()
+                    messages.success(request, f"✅ {target.username}'s info updated.")
+            except User.DoesNotExist:
+                messages.error(request, "User not found.")
+
+        elif action == 'change_password':"
             user_id  = request.POST.get('user_id')
             new_pass = request.POST.get('new_password','').strip()
             try:
@@ -455,3 +475,7 @@ def staff_manage(request):
 
     staff_members = StaffProfile.objects.select_related('user', 'created_by').order_by('role')
     return render(request, 'core/staff_manage.html', {'staff_members': staff_members})
+
+
+# Patch: add edit_info to staff_manage — insert after change_password block
+# This is handled by patching the staff_manage function directly on server
