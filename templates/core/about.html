@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}About Aarohi{% endblock %}
 
 {% block content %}
@@ -14,9 +15,7 @@
     <div class="about-grid">
 
       <div class="about-img-wrap">
-        <!-- To add Aarohi's photo: save it as static/images/aarohi.jpg
-             then replace the placeholder below with:
-             <img src="{% load static %}{% static 'images/aarohi.jpg' %}" alt="Aarohi Jain"
+             <img src="{% static 'images/aarohi.jpeg' %}" alt="Aarohi Jain"
                   style="border-radius:var(--r-lg);width:100%;border:1px solid var(--border);"> -->
         <div class="about-img-placeholder">
           <div class="about-img-caption">
