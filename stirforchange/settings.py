@@ -2,7 +2,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-change-me-before-production-stirforchange-2025'
+SECRET_KEY = 'django-insecure-stirforchange-2025-change-in-production'
 
 DEBUG = False
 
@@ -78,13 +78,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Email ─────────────────────────────────────────────
-# Console for now — enable SMTP when ready
-
-# To enable real email sending, comment out the line above and fill in below:
-# # # # # #
-
-# Email via Namecheap Private Email
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST          = 'mail.privateemail.com'
 EMAIL_PORT          = 587

@@ -2,7 +2,6 @@
 *.pyc
 *.pyo
 __pycache__/
-*.py[cod]
 
 # Django
 db.sqlite3
@@ -10,7 +9,7 @@ db.sqlite3
 /staticfiles/
 /media/
 
-# Environment
+# Env
 venv/
 .env
 *.env
@@ -18,7 +17,3 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
-
-# IDE
-.vscode/
-.idea/
