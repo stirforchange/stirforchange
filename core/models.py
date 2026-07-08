@@ -25,18 +25,55 @@ class StaffProfile(models.Model):
         verbose_name = 'Staff Profile'
 
 
-class VolunteerSignup(models.Model):
-    first_name      = models.CharField(max_length=100)
-    last_name       = models.CharField(max_length=100)
-    email           = models.EmailField()
-    phone           = models.CharField(max_length=20, blank=True)
-    birthdate       = models.DateField()
-    school          = models.CharField(max_length=200, blank=True)
-    avail_days      = models.CharField(max_length=300, blank=True)
-    avail_start     = models.CharField(max_length=10, blank=True)
-    avail_end       = models.CharField(max_length=10, blank=True)
-    future_dates    = models.TextField(blank=True, default='[]')
+class VolunteerEvent(models.Model):
+    title           = models.CharField(max_length=200)
+    description     = models.TextField()
+    date            = models.DateField()
+    start_time      = models.TimeField()
+    end_time        = models.TimeField()
+    location        = models.CharField(max_length=300)
+    max_volunteers  = models.PositiveIntegerField(default=10)
+    what_to_bring   = models.TextField(blank=True)
+    food_type       = models.CharField(max_length=200, blank=True)
+    is_active       = models.BooleanField(default=True)
+    created_by      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_events')
     created_at      = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def spots_taken(self):
+        return self.signups.count()
+
+    @property
+    def spots_left(self):
+        return max(0, self.max_volunteers - self.spots_taken)
+
+    @property
+    def is_full(self):
+        return self.spots_taken >= self.max_volunteers
+
+    @property
+    def capacity_percent(self):
+        if self.max_volunteers == 0:
+            return 100
+        return min(100, int((self.spots_taken / self.max_volunteers) * 100))
+
+    def __str__(self):
+        return f"{self.title} — {self.date}"
+
+    class Meta:
+        ordering = ['date', 'start_time']
+        verbose_name = 'Volunteer Event'
+
+
+class VolunteerSignup(models.Model):
+    event      = models.ForeignKey(VolunteerEvent, on_delete=models.CASCADE, related_name='signups')
+    first_name = models.CharField(max_length=100)
+    last_name  = models.CharField(max_length=100)
+    email      = models.EmailField()
+    phone      = models.CharField(max_length=20, blank=True)
+    birthdate  = models.DateField()
+    school     = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def age(self):
@@ -45,11 +82,13 @@ class VolunteerSignup(models.Model):
         return today.year - b.year - ((today.month, today.day) < (b.month, b.day))
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} (age {self.age})"
+        return f"{self.first_name} {self.last_name} → {self.event.title}"
 
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'Volunteer Signup'
+        # Prevent duplicate signup for same event
+        unique_together = [['event', 'email']]
 
 
 class BusinessSignup(models.Model):

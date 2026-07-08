@@ -1,0 +1,72 @@
+{% extends 'core/dash_base.html' %}
+{% block title %}{{ ev.title }} — Signups{% endblock %}
+{% block dash_content %}
+
+<!-- Event summary -->
+<div class="dash-card" style="margin-bottom:1.5rem;">
+  <div class="dash-card-head">
+    <h3>📅 {{ ev.title }}</h3>
+    <div style="display:flex;gap:.5rem;">
+      <a href="/dashboard/event/{{ ev.pk }}/edit/" class="action-btn edit-btn">✏️ Edit Event</a>
+      <a href="/dashboard/" class="action-btn" style="background:var(--pink-bg);color:var(--charcoal);border:1px solid var(--border);">← Dashboard</a>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:1.25rem 1.5rem;">
+    <div><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.25rem;">Date</div><div style="font-weight:500;">{{ ev.date|date:"M j, Y" }}</div></div>
+    <div><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.25rem;">Time</div><div style="font-weight:500;">{{ ev.start_time|time:"g:i A" }} – {{ ev.end_time|time:"g:i A" }}</div></div>
+    <div><div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.25rem;">Location</div><div style="font-weight:500;font-size:.88rem;">{{ ev.location }}</div></div>
+    <div>
+      <div style="font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.25rem;">Capacity</div>
+      <div style="font-weight:600;color:{% if ev.is_full %}var(--red){% else %}#22c55e{% endif %};">{{ ev.spots_taken }}/{{ ev.max_volunteers }}</div>
+      <div style="height:6px;background:var(--border);border-radius:40px;overflow:hidden;margin-top:.35rem;">
+        <div style="height:100%;width:{{ ev.capacity_percent }}%;border-radius:40px;background:{% if ev.capacity_percent >= 90 %}var(--red){% elif ev.capacity_percent >= 60 %}#f59e0b{% else %}#22c55e{% endif %};"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Signups list -->
+<div class="dash-card">
+  <div class="dash-card-head">
+    <h3>👥 Volunteers Signed Up <span style="background:var(--pink);color:var(--red);border-radius:40px;padding:2px 8px;font-size:.72rem;font-weight:600;margin-left:.4rem;">{{ signups.count }}</span></h3>
+  </div>
+  {% if signups %}
+  <table class="dash-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Age</th><th>School</th><th>Signed Up</th>{% if user_role == 'owner' %}<th>Remove</th>{% endif %}</tr></thead>
+    <tbody>
+      {% for s in signups %}
+      <tr>
+        <td><strong>{{ s.first_name }} {{ s.last_name }}</strong></td>
+        <td style="font-size:.8rem;color:var(--muted);">{{ s.email }}</td>
+        <td style="font-size:.8rem;color:var(--muted);">{{ s.phone|default:"—" }}</td>
+        <td>{{ s.age }}</td>
+        <td style="font-size:.8rem;color:var(--muted);">{{ s.school|default:"—" }}</td>
+        <td style="font-size:.78rem;color:var(--muted);">{{ s.created_at|date:"M j, Y g:i A" }}</td>
+        {% if user_role == 'owner' %}
+        <td>
+          <form method="post" action="/dashboard/signup/{{ s.pk }}/delete/" onsubmit="return confirm('Remove {{ s.first_name }} {{ s.last_name }} from this event?');">
+            {% csrf_token %}
+            <button type="submit" class="action-btn delete-btn">🗑️ Remove</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="padding:2rem;text-align:center;color:var(--muted);">No volunteers signed up yet.</div>
+  {% endif %}
+</div>
+
+<style>
+.dash-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+.dash-table th{background:var(--pink-bg);color:var(--charcoal);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:10px 1rem;text-align:left;border-bottom:1px solid var(--border);}
+.dash-table td{padding:11px 1rem;border-bottom:1px solid var(--border);color:var(--charcoal);}
+.dash-table tr:last-child td{border-bottom:none;}
+.dash-table tr:hover td{background:#fdf8f9;}
+.action-btn{display:inline-flex;align-items:center;gap:.3rem;border-radius:var(--r1);padding:5px 10px;font-size:.75rem;font-weight:500;cursor:pointer;border:1px solid;text-decoration:none;transition:all .15s;font-family:var(--ff-b);}
+.edit-btn{background:#e8f4fd;color:#1a6fa8;border-color:#b8d4f0;}
+.delete-btn{background:#fdf2f4;color:var(--red);border-color:var(--pink);}
+</style>
+{% endblock %}

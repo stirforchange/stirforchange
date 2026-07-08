@@ -5,53 +5,37 @@ from django.conf import settings
 ORG_EMAIL = getattr(settings, 'STIRFORCHANGE_EMAIL', 'aarohi@stirforchange.org')
 
 
-def send_volunteer_confirmation(volunteer):
-    try:
-        futures = json.loads(volunteer.future_dates) if volunteer.future_dates else []
-    except Exception:
-        futures = []
+def send_volunteer_confirmation(signup):
+    """Send confirmation to volunteer + notification to org."""
+    event = signup.event
 
-    future_text = ''
-    if futures:
-        future_text = '\nYour scheduled volunteer dates:\n'
-        for f in futures:
-            time_str = f"{f.get('start','')} - {f.get('end','')}" if f.get('start') else 'Time TBD'
-            future_text += f"  - {f.get('date', '')}  |  {time_str}\n"
-    else:
-        future_text = '\nNo specific dates added yet - we will be in touch to schedule!\n'
+    subject = f"You're registered for {event.title}! 🎉"
+    text_body = f"""Hi {signup.first_name}!
 
-    general_avail = ''
-    if volunteer.avail_days:
-        general_avail = f"\nGeneral availability:\n  Days: {volunteer.avail_days}"
-        if volunteer.avail_start and volunteer.avail_end:
-            general_avail += f"\n  Time: {volunteer.avail_start} - {volunteer.avail_end}"
+Thank you for signing up to volunteer with StirForChange! We're so excited to have you at this event.
 
-    subject = "You're officially a StirForChange volunteer! 🎉"
-    text_body = f"""Hi {volunteer.first_name}!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EVENT DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Event:     {event.title}
+Date:      {event.date.strftime('%A, %B %d, %Y')}
+Time:      {event.start_time.strftime('%I:%M %p')} – {event.end_time.strftime('%I:%M %p')}
+Location:  {event.location}
+{f'Food type: {event.food_type}' if event.food_type else ''}
+{f'What to bring: {event.what_to_bring}' if event.what_to_bring else ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Thank you so much for signing up to volunteer with StirForChange. We are beyond excited to have you join our team!
+YOUR DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Name:   {signup.first_name} {signup.last_name}
+Email:  {signup.email}
+Phone:  {signup.phone or 'Not provided'}
+Age:    {signup.age}
+School: {signup.school or 'Not provided'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-You are now part of a growing movement of young people who believe that no good food should go to waste while people go hungry. Every hour you give will turn into real meals for real families in our community.
-
-YOUR APPLICATION DETAILS
----------------------------------
-Name:     {volunteer.first_name} {volunteer.last_name}
-Email:    {volunteer.email}
-Phone:    {volunteer.phone or 'Not provided'}
-Age:      {volunteer.age}
-School:   {volunteer.school or 'Not provided'}
-{general_avail}
-{future_text}
----------------------------------
-
-WHAT HAPPENS NEXT?
-
-A member of our team will reach out to you as soon as possible to:
-  - Confirm your schedule
-  - Share volunteer guidelines
-  - Add you to our volunteer group
-
-In the meantime follow us on Instagram @stirforchange for updates!
+A member of our team will reach out as soon as possible if there are any updates.
+Follow us on Instagram @stirforchange for more!
 
 Thank you for choosing to make a difference. We cannot wait to work with you!
 
@@ -66,31 +50,29 @@ stirforchange.org
             subject=subject,
             message=text_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[volunteer.email],
+            recipient_list=[signup.email],
             fail_silently=False,
         )
     except Exception as e:
         print(f"[Email] Volunteer confirmation failed: {e}")
 
-    org_subject = f"New Volunteer: {volunteer.first_name} {volunteer.last_name}"
-    org_body = f"""New volunteer signup on stirforchange.org!
+    # Org notification
+    org_subject = f"🙋 New Volunteer: {signup.first_name} {signup.last_name} → {event.title}"
+    org_body = f"""New volunteer signup!
 
-PERSONAL INFORMATION
----------------------------------
-Name:       {volunteer.first_name} {volunteer.last_name}
-Email:      {volunteer.email}
-Phone:      {volunteer.phone or 'Not provided'}
-Age:        {volunteer.age}
-Birthdate:  {volunteer.birthdate}
-School:     {volunteer.school or 'Not provided'}
+EVENT: {event.title} on {event.date.strftime('%B %d, %Y')}
+Spots: {event.spots_taken}/{event.max_volunteers} filled
 
-AVAILABILITY
----------------------------------
-General days:  {volunteer.avail_days or 'Not specified'}
-General time:  {volunteer.avail_start or '-'} - {volunteer.avail_end or '-'}
-{future_text}
----------------------------------
-Signed up: {volunteer.created_at.strftime('%B %d, %Y at %I:%M %p')}
+VOLUNTEER DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Name:      {signup.first_name} {signup.last_name}
+Email:     {signup.email}
+Phone:     {signup.phone or 'Not provided'}
+Age:       {signup.age}
+Birthdate: {signup.birthdate}
+School:    {signup.school or 'Not provided'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Signed up: {signup.created_at.strftime('%B %d, %Y at %I:%M %p')}
 Dashboard: https://stirforchange.org/dashboard/
 """
     try:
@@ -102,7 +84,7 @@ Dashboard: https://stirforchange.org/dashboard/
             fail_silently=False,
         )
     except Exception as e:
-        print(f"[Email] Org volunteer notification failed: {e}")
+        print(f"[Email] Org notification failed: {e}")
 
 
 def send_business_confirmation(business):
@@ -111,10 +93,8 @@ def send_business_confirmation(business):
 
 Thank you so much for choosing to partner with StirForChange! We are truly grateful that {business.business_name} is joining our mission to fight food waste and hunger in our community.
 
-Your partnership means the world to us. Every donation of surplus food from your business will be carefully packed and delivered same day to homeless individuals and families in need. Together we are turning what would have been waste into life-changing meals.
-
 YOUR APPLICATION DETAILS
----------------------------------
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Business:      {business.business_name}
 Type:          {business.get_business_type_display()}
 Contact:       {business.contact_name}
@@ -123,27 +103,11 @@ Phone:         {business.phone}
 Address:       {business.full_address}
 Frequency:     {business.frequency or 'To be confirmed'}
 Surplus food:  {business.food_types or 'To be confirmed'}
----------------------------------
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-FOOD RECOVERY AGREEMENT
+A member of our team will reach out as soon as possible to schedule your first pickup.
 
-By submitting your application you have agreed to our Food Recovery Agreement
-in accordance with California Senate Bill 1383 and Alameda County ORRO guidelines.
-This agreement protects both parties under the Bill Emerson Good Samaritan Food Donation Act.
-
-WHAT HAPPENS NEXT?
-
-A member of our team will reach out as soon as possible to:
-  - Schedule your first pickup
-  - Confirm food handling logistics
-  - Provide you with a tax-deductible donation receipt setup
-  - Feature your business as an official StirForChange partner
-
-We accept fresh, properly stored, or unopened food only. Our volunteers are
-trained in safe food handling and will always arrive on time.
-
-Thank you for making a difference in our community. We are so proud to call
-{business.business_name} a StirForChange partner!
+Thank you for making a difference!
 
 Warmly,
 Aarohi Jain
@@ -162,26 +126,19 @@ stirforchange.org
     except Exception as e:
         print(f"[Email] Business confirmation failed: {e}")
 
-    org_subject = f"New Partner: {business.business_name}"
-    org_body = f"""New business partner signup on stirforchange.org!
+    org_subject = f"🏪 New Partner: {business.business_name}"
+    org_body = f"""New business partner signup!
 
-BUSINESS INFORMATION
----------------------------------
-Business:     {business.business_name}
-Type:         {business.get_business_type_display()}
-Contact:      {business.contact_name}
-Email:        {business.email}
-Phone:        {business.phone}
-Address:      {business.full_address}
+Business:  {business.business_name}
+Type:      {business.get_business_type_display()}
+Contact:   {business.contact_name}
+Email:     {business.email}
+Phone:     {business.phone}
+Address:   {business.full_address}
+Frequency: {business.frequency or 'Not specified'}
+Food:      {business.food_types or 'Not specified'}
+Notes:     {business.message or 'None'}
 
-FOOD DONATION DETAILS
----------------------------------
-Frequency:    {business.frequency or 'Not specified'}
-Food types:   {business.food_types or 'Not specified'}
-Notes:        {business.message or 'None'}
-
----------------------------------
-Agreed to Food Recovery Agreement: YES
 Submitted: {business.created_at.strftime('%B %d, %Y at %I:%M %p')}
 Dashboard: https://stirforchange.org/dashboard/
 """

@@ -1,412 +1,183 @@
 {% extends 'base.html' %}
-{% block title %}Volunteer Signup{% endblock %}
+{% block title %}Volunteer Events{% endblock %}
 
 {% block content %}
 
 <div class="page-hero">
   <span class="tag">Get Involved</span>
-  <h1>Join Our <em>Volunteer Team</em></h1>
-  <p>We're looking for passionate teens and young adults who care about food justice. No experience needed — just heart and commitment.</p>
+  <h1>Volunteer <em>Events</em></h1>
+  <p>Pick an upcoming event and sign up to volunteer. Every shift you give turns into real meals for families in need.</p>
 </div>
 
 <section class="section">
   <div class="container">
-    <div class="form-layout">
 
-      <div class="form-sidebar">
-        <h2>Be the change you want to see.</h2>
-        <p>Our volunteers are the heart of StirForChange. Every hour you give turns into meals for families in need.</p>
-        <ul class="perks-list">
-          <li><span class="ck">✓</span> Earn verified volunteer hours for school</li>
-          <li><span class="ck">✓</span> Build real leadership skills</li>
-          <li><span class="ck">✓</span> Work with a motivated, passionate team</li>
-          <li><span class="ck">✓</span> Receive a letter of recommendation</li>
-          <li><span class="ck">✓</span> Looks great on college applications</li>
-          <li><span class="ck">✓</span> Make a real difference in your community</li>
-        </ul>
-        <div class="sidebar-note">
-          <strong>Ages 13–25 welcome.</strong>
-          We ask for at least 2–4 hours per month. Most volunteers end up doing much more — because they love it.
+    {% if messages %}
+      {% for msg in messages %}
+      <div style="background:{% if msg.tags == 'error' %}#fdf2f4{% else %}#d4edda{% endif %};
+                  border:1px solid {% if msg.tags == 'error' %}#f2c4cc{% else %}#c3e6cb{% endif %};
+                  color:{% if msg.tags == 'error' %}#b5273a{% else %}#155724{% endif %};
+                  border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;">
+        {{ msg }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if events %}
+    <div class="events-grid">
+      {% for event in events %}
+      <div class="event-card {% if event.is_full %}event-full{% endif %}">
+
+        <!-- Header strip -->
+        <div class="event-card-header">
+          <div class="event-date-block">
+            <div class="event-month">{{ event.date|date:"M" }}</div>
+            <div class="event-day">{{ event.date|date:"d" }}</div>
+          </div>
+          <div class="event-header-info">
+            <h3 class="event-title">{{ event.title }}</h3>
+            <div class="event-time">⏰ {{ event.start_time|time:"g:i A" }} – {{ event.end_time|time:"g:i A" }}</div>
+          </div>
+          {% if event.is_full %}
+          <span class="event-full-badge">FULL</span>
+          {% else %}
+          <span class="event-spots-badge">{{ event.spots_left }} spot{{ event.spots_left|pluralize }} left</span>
+          {% endif %}
         </div>
+
+        <!-- Body -->
+        <div class="event-card-body">
+          <div class="event-location">📍 {{ event.location }}</div>
+          <p class="event-desc">{{ event.description }}</p>
+
+          {% if event.food_type %}
+          <div class="event-tag">🍱 {{ event.food_type }}</div>
+          {% endif %}
+          {% if event.what_to_bring %}
+          <div class="event-tag">🎒 Bring: {{ event.what_to_bring }}</div>
+          {% endif %}
+
+          <!-- Capacity bar -->
+          <div class="capacity-wrap">
+            <div class="capacity-bar">
+              <div class="capacity-fill {% if event.capacity_percent >= 90 %}cap-high{% elif event.capacity_percent >= 60 %}cap-med{% else %}cap-low{% endif %}"
+                   style="width:{{ event.capacity_percent }}%;"></div>
+            </div>
+            <div class="capacity-text">{{ event.spots_taken }}/{{ event.max_volunteers }} volunteers</div>
+          </div>
+
+          {% if event.is_full %}
+          <button class="btn event-btn-full" disabled>No More Spots Available</button>
+          {% else %}
+          <a href="/volunteer/{{ event.pk }}/signup/" class="btn btn-primary event-btn">Sign Up to Volunteer →</a>
+          {% endif %}
+        </div>
+
       </div>
-
-      <div class="form-card">
-        <h3>Volunteer Application</h3>
-        <form method="post" novalidate id="volunteerForm">
-          {% csrf_token %}
-
-          <!-- ── Personal Information ── -->
-          <div class="form-section-label">Personal Information</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="{{ form.first_name.id_for_label }}">First Name *</label>
-              {{ form.first_name }}{{ form.first_name.errors }}
-            </div>
-            <div class="form-group">
-              <label for="{{ form.last_name.id_for_label }}">Last Name *</label>
-              {{ form.last_name }}{{ form.last_name.errors }}
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="{{ form.email.id_for_label }}">Email *</label>
-              {{ form.email }}{{ form.email.errors }}
-            </div>
-            <div class="form-group">
-              <label for="{{ form.phone.id_for_label }}">Phone</label>
-              {{ form.phone }}{{ form.phone.errors }}
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="{{ form.birthdate.id_for_label }}">Date of Birth *</label>
-              {{ form.birthdate }}{{ form.birthdate.errors }}
-              <div class="age-display" id="ageDisplay"></div>
-            </div>
-            <div class="form-group">
-              <label for="{{ form.school.id_for_label }}">School / University</label>
-              {{ form.school }}{{ form.school.errors }}
-            </div>
-          </div>
-
-          <!-- ── Section 1: Specific Dates (required, at least one) ── -->
-          <div class="form-section-label" style="margin-top:2rem;">
-            Volunteer Dates *
-          </div>
-          <p class="avail-hint">Add at least one date you'd like to volunteer, along with your available time. You can add as many dates as you want.</p>
-
-          <div id="futureDatesWrap">
-            <!-- Row 0 — always shown, required -->
-            <div class="future-row" id="frow-0">
-              <div class="future-row-top">
-                <span class="future-row-num">Date 1</span>
-                <button type="button" class="remove-row-btn" id="remove-0" onclick="removeFutureRow(0)" style="display:none;" aria-label="Remove">✕</button>
-              </div>
-              <div class="future-row-fields">
-                <div>
-                  <label class="future-input-label">Date *</label>
-                  <input type="date" name="future_date_0" id="fdate-0" min="" class="future-input fdate" required>
-                </div>
-                <div>
-                  <label class="future-input-label">Start Time *</label>
-                  <input type="time" name="future_start_0" id="fstart-0" class="future-input ftime-start">
-                </div>
-                <div>
-                  <label class="future-input-label">End Time *</label>
-                  <input type="time" name="future_end_0" id="fend-0" class="future-input ftime-end">
-                  <div class="future-duration" id="fdur-0"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button type="button" id="addDateBtn" class="add-date-btn">
-            + Add another date
-          </button>
-
-          <!-- Summary pills -->
-          <div id="futureSummary" style="display:none;margin-top:.85rem;">
-            <div class="summary-label">Dates added:</div>
-            <div id="futureSummaryList"></div>
-          </div>
-
-          <!-- ── Section 2: General Weekly Availability (optional) ── -->
-          <div class="form-section-label" style="margin-top:2.25rem;">
-            General Weekly Availability
-            <span class="optional-badge">Optional</span>
-          </div>
-          <p class="avail-hint">If you're available on a recurring basis, tell us which days and times generally work for you each week.</p>
-
-          <div class="form-group">
-            <label>Which days are you usually free?</label>
-            <div class="days-grid">
-              {% for widget in form.avail_days %}
-              <label class="day-chip">
-                {{ widget.tag }}
-                <span>{{ widget.choice_label }}</span>
-              </label>
-              {% endfor %}
-            </div>
-            {{ form.avail_days.errors }}
-          </div>
-
-          <div class="avail-time-row">
-            <div class="form-group" style="flex:1;margin-bottom:0;">
-              <label for="{{ form.avail_start.id_for_label }}">From (start time)</label>
-              {{ form.avail_start }}{{ form.avail_start.errors }}
-            </div>
-            <div class="avail-time-sep">to</div>
-            <div class="form-group" style="flex:1;margin-bottom:0;">
-              <label for="{{ form.avail_end.id_for_label }}">To (end time)</label>
-              {{ form.avail_end }}{{ form.avail_end.errors }}
-            </div>
-          </div>
-          <div class="avail-duration-display" id="durationDisplay"></div>
-
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:2rem;">
-            Submit Application →
-          </button>
-        </form>
-      </div>
-
+      {% endfor %}
     </div>
+
+    {% else %}
+    <div class="no-events">
+      <div class="no-events-icon">📅</div>
+      <h3>No upcoming events right now</h3>
+      <p>Check back soon — we're always planning new food rescue events!</p>
+      <a href="/about/" class="btn btn-primary" style="margin-top:1rem;">Learn About Us →</a>
+    </div>
+    {% endif %}
+
   </div>
 </section>
 
 <style>
-.avail-hint { font-size:.84rem;color:var(--muted);margin-bottom:1rem;margin-top:-.25rem; }
-
-/* Day chips */
-.days-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.4rem; }
-.day-chip {
-  display:flex;align-items:center;gap:.5rem;
-  background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);
-  padding:.65rem .9rem;cursor:pointer;font-size:.85rem;color:var(--charcoal);
-  transition:all .15s;user-select:none;font-family:var(--ff-b);
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
 }
-.day-chip:hover { border-color:var(--red);background:var(--pink-bg); }
-.day-chip input[type="checkbox"] { width:16px;height:16px;accent-color:var(--red);flex-shrink:0;cursor:pointer;margin:0;padding:0; }
-.day-chip:has(input:checked) { background:var(--pink);border-color:var(--red);color:var(--red);font-weight:600; }
 
-/* General time row */
-.avail-time-row { display:flex;align-items:flex-end;gap:.75rem;margin-top:1rem; }
-.avail-time-sep { font-size:.85rem;color:var(--muted);flex-shrink:0;padding-bottom:13px;font-weight:500; }
-.avail-duration-display { display:none;font-size:.82rem;color:var(--red);font-weight:500;background:var(--pink-bg);border-radius:var(--r1);padding:6px 12px;margin-top:.5rem; }
-
-/* Optional badge */
-.optional-badge { display:inline-block;font-size:.68rem;font-weight:500;color:var(--muted);background:var(--pink-bg);border:1px solid var(--border);border-radius:40px;padding:2px 10px;margin-left:.5rem;text-transform:none;letter-spacing:0;vertical-align:middle; }
-
-/* Future date rows */
-.future-row { background:var(--pink-bg);border:1.5px solid var(--border);border-radius:var(--r2);padding:1rem 1rem .9rem;margin-bottom:.75rem; }
-.future-row-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem; }
-.future-row-num { font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--red); }
-.future-row-fields { display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:.75rem;align-items:end; }
-.future-input-label { font-size:.75rem;font-weight:500;color:var(--charcoal);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px; }
-.future-input {
-  font-family:var(--ff-b);font-size:.9rem;color:var(--charcoal);
-  background:var(--white);border:1.5px solid var(--border);border-radius:var(--r1);
-  padding:10px 12px;width:100%;transition:border-color .2s;-webkit-appearance:none;
+/* Event card */
+.event-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--s1);
+  transition: transform .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
 }
-.future-input:focus { outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(181,39,58,.1); }
-.future-input.error-field { border-color:var(--red)!important; }
-.future-duration { font-size:.75rem;color:var(--muted);margin-top:.35rem;font-style:italic; }
-.remove-row-btn {
-  background:none;border:1.5px solid var(--border);border-radius:50%;
-  width:28px;height:28px;flex-shrink:0;cursor:pointer;font-size:.78rem;color:var(--muted);
-  display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1;
-}
-.remove-row-btn:hover { background:var(--pink);border-color:var(--red);color:var(--red); }
+.event-card:hover { transform: translateY(-3px); box-shadow: var(--s2); }
+.event-full { opacity: .8; }
 
-/* Add date button */
-.add-date-btn {
-  display:flex;align-items:center;justify-content:center;gap:.4rem;
-  background:transparent;border:1.5px dashed var(--border);border-radius:var(--r2);
-  padding:.75rem 1.25rem;font-family:var(--ff-b);font-size:.85rem;font-weight:500;
-  color:var(--red);cursor:pointer;transition:all .18s;width:100%;margin-top:.25rem;
+/* Header */
+.event-card-header {
+  background: linear-gradient(135deg, var(--red), #8D1D2E);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
-.add-date-btn:hover { background:var(--pink-bg);border-color:var(--red); }
-
-/* Summary pills */
-.summary-label { font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem; }
-.summary-pill { display:inline-flex;align-items:center;gap:.35rem;background:var(--pink);color:var(--red);border-radius:40px;padding:5px 13px;font-size:.78rem;font-weight:500;margin:0 .35rem .35rem 0;border:1px solid var(--border); }
-
-/* Responsive */
-@media(max-width:700px){
-  .days-grid { grid-template-columns:repeat(2,1fr); }
-  .avail-time-row { flex-direction:column;align-items:stretch;gap:0; }
-  .avail-time-sep { display:none; }
-  .future-row-fields { grid-template-columns:1fr 1fr; }
-  .future-row-fields>:first-child { grid-column:1/-1; }
+.event-date-block {
+  background: rgba(255,255,255,.2);
+  border-radius: 10px;
+  padding: .5rem .75rem;
+  text-align: center;
+  flex-shrink: 0;
+  min-width: 52px;
 }
-@media(max-width:420px){
-  .future-row-fields { grid-template-columns:1fr; }
-  .days-grid { grid-template-columns:1fr 1fr; }
+.event-month { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.8); }
+.event-day   { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1; font-family: var(--ff-d); }
+.event-header-info { flex: 1; }
+.event-title { font-size: 1rem; font-weight: 600; color: #fff; margin: 0 0 .25rem; line-height: 1.3; }
+.event-time  { font-size: .78rem; color: rgba(255,255,255,.8); }
+.event-full-badge {
+  background: rgba(0,0,0,.25);
+  color: #fff;
+  border-radius: 40px;
+  padding: 4px 10px;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  flex-shrink: 0;
+}
+.event-spots-badge {
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border-radius: 40px;
+  padding: 4px 10px;
+  font-size: .72rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Body */
+.event-card-body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; }
+.event-location { font-size: .84rem; color: var(--muted); margin-bottom: .75rem; font-weight: 500; }
+.event-desc { font-size: .88rem; color: var(--charcoal); line-height: 1.6; margin-bottom: .85rem; flex: 1; }
+.event-tag { display: inline-block; font-size: .78rem; color: var(--charcoal); background: var(--pink-bg); border: 1px solid var(--border); border-radius: 40px; padding: 4px 12px; margin: 0 .35rem .5rem 0; }
+
+/* Capacity bar */
+.capacity-wrap { margin: .85rem 0 1.1rem; }
+.capacity-bar { height: 6px; background: var(--border); border-radius: 40px; overflow: hidden; margin-bottom: .35rem; }
+.capacity-fill { height: 100%; border-radius: 40px; transition: width .3s; }
+.cap-low  { background: #22c55e; }
+.cap-med  { background: #f59e0b; }
+.cap-high { background: var(--red); }
+.capacity-text { font-size: .72rem; color: var(--muted); font-weight: 500; }
+
+/* Buttons */
+.event-btn { width: 100%; text-align: center; padding: 12px; }
+.event-btn-full { width: 100%; padding: 12px; background: var(--border); color: var(--muted); border: none; border-radius: var(--r2); font-family: var(--ff-b); font-size: .88rem; cursor: not-allowed; }
+
+/* No events */
+.no-events { text-align: center; padding: 5rem 2rem; color: var(--muted); }
+.no-events-icon { font-size: 3rem; margin-bottom: 1rem; }
+.no-events h3 { color: var(--charcoal); font-size: 1.3rem; margin-bottom: .5rem; }
+
+@media(max-width: 768px) {
+  .events-grid { grid-template-columns: 1fr; }
 }
 </style>
-
-<script>
-var rowCount = 1;
-var today = new Date().toISOString().split('T')[0];
-
-// Set min on first row date
-document.getElementById('fdate-0').setAttribute('min', today);
-
-// ── Age calculator ──
-var dobField = document.getElementById('id_birthdate');
-if(dobField){
-  dobField.addEventListener('change', function(){
-    var bd = new Date(this.value), now = new Date();
-    var age = now.getFullYear() - bd.getFullYear();
-    var m = now.getMonth() - bd.getMonth();
-    if(m < 0 || (m===0 && now.getDate() < bd.getDate())) age--;
-    var el = document.getElementById('ageDisplay');
-    if(el){ el.style.display='block'; el.textContent='Age: '+age+' years old'; }
-  });
-}
-
-// ── General availability duration ──
-function updateGeneralDuration(){
-  var s = document.getElementById('id_avail_start').value;
-  var e = document.getElementById('id_avail_end').value;
-  var el = document.getElementById('durationDisplay');
-  if(s && e){
-    var mins = timeDiffMins(s, e);
-    if(mins > 0){ el.style.display='block'; el.textContent='⏱ '+formatDuration(mins)+' session'; }
-    else { el.style.display='none'; }
-  } else { el.style.display='none'; }
-}
-var sf = document.getElementById('id_avail_start');
-var ef = document.getElementById('id_avail_end');
-if(sf) sf.addEventListener('change', updateGeneralDuration);
-if(ef) ef.addEventListener('change', updateGeneralDuration);
-
-// ── Row 0 listeners ──
-document.getElementById('fdate-0').addEventListener('change', updateSummary);
-document.getElementById('fstart-0').addEventListener('change', function(){ updateRowDuration(0); updateSummary(); });
-document.getElementById('fend-0').addEventListener('change', function(){ updateRowDuration(0); updateSummary(); });
-
-// ── Add a future date row ──
-document.getElementById('addDateBtn').addEventListener('click', function(){
-  var idx = rowCount;
-  var wrap = document.getElementById('futureDatesWrap');
-
-  var row = document.createElement('div');
-  row.className = 'future-row';
-  row.id = 'frow-'+idx;
-  row.innerHTML =
-    '<div class="future-row-top">' +
-      '<span class="future-row-num">Date '+(idx+1)+'</span>' +
-      '<button type="button" class="remove-row-btn" onclick="removeFutureRow('+idx+')" aria-label="Remove">✕</button>' +
-    '</div>' +
-    '<div class="future-row-fields">' +
-      '<div><label class="future-input-label">Date *</label>' +
-        '<input type="date" name="future_date_'+idx+'" id="fdate-'+idx+'" min="'+today+'" class="future-input fdate"></div>' +
-      '<div><label class="future-input-label">Start Time</label>' +
-        '<input type="time" name="future_start_'+idx+'" id="fstart-'+idx+'" class="future-input ftime-start"></div>' +
-      '<div><label class="future-input-label">End Time</label>' +
-        '<input type="time" name="future_end_'+idx+'" id="fend-'+idx+'" class="future-input ftime-end">' +
-        '<div class="future-duration" id="fdur-'+idx+'"></div></div>' +
-    '</div>';
-
-  wrap.appendChild(row);
-
-  // Show remove btn on row 0 now that there are multiple
-  document.getElementById('remove-0').style.display = 'flex';
-
-  // Attach listeners
-  document.getElementById('fdate-'+idx).addEventListener('change', updateSummary);
-  document.getElementById('fstart-'+idx).addEventListener('change', function(){ updateRowDuration(idx); updateSummary(); });
-  document.getElementById('fend-'+idx).addEventListener('change', function(){ updateRowDuration(idx); updateSummary(); });
-
-  rowCount++;
-  renumberRows();
-  updateSummary();
-});
-
-// ── Remove a row ──
-function removeFutureRow(idx){
-  var row = document.getElementById('frow-'+idx);
-  if(row) row.remove();
-  var remaining = document.querySelectorAll('.future-row');
-  // If only one row left, hide its remove button
-  if(remaining.length === 1){
-    var btn = remaining[0].querySelector('.remove-row-btn');
-    if(btn) btn.style.display = 'none';
-  }
-  renumberRows();
-  updateSummary();
-}
-
-// ── Re-number "Date N" labels ──
-function renumberRows(){
-  document.querySelectorAll('.future-row').forEach(function(r, i){
-    var lbl = r.querySelector('.future-row-num');
-    if(lbl) lbl.textContent = 'Date '+(i+1);
-  });
-}
-
-// ── Duration for a specific row ──
-function updateRowDuration(idx){
-  var s = document.getElementById('fstart-'+idx);
-  var e = document.getElementById('fend-'+idx);
-  var d = document.getElementById('fdur-'+idx);
-  if(!s||!e||!d) return;
-  if(s.value && e.value){
-    var mins = timeDiffMins(s.value, e.value);
-    d.textContent = mins > 0 ? '⏱ '+formatDuration(mins) : '';
-  }
-}
-
-// ── Summary pills ──
-function updateSummary(){
-  var rows = document.querySelectorAll('.future-row');
-  var pills = [];
-  rows.forEach(function(row){
-    var d = row.querySelector('.fdate').value;
-    var s = row.querySelector('.ftime-start').value;
-    var e = row.querySelector('.ftime-end').value;
-    if(d){
-      var dateStr = new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-      var timeStr = (s && e) ? fmt12(s)+' – '+fmt12(e) : (s ? 'from '+fmt12(s) : '');
-      pills.push(dateStr + (timeStr ? ' · '+timeStr : ''));
-    }
-  });
-  var sumEl  = document.getElementById('futureSummary');
-  var listEl = document.getElementById('futureSummaryList');
-  if(pills.length){
-    sumEl.style.display='block';
-    listEl.innerHTML = pills.map(function(p){ return '<span class="summary-pill">📅 '+p+'</span>'; }).join('');
-  } else {
-    sumEl.style.display='none';
-    listEl.innerHTML='';
-  }
-}
-
-// ── Form validation — require at least 1 date ──
-document.getElementById('volunteerForm').addEventListener('submit', function(e){
-  var rows = document.querySelectorAll('.future-row');
-  var hasDate = false;
-  rows.forEach(function(row){
-    var d = row.querySelector('.fdate').value;
-    if(d) hasDate = true;
-  });
-  if(!hasDate){
-    e.preventDefault();
-    var firstDate = document.getElementById('fdate-0');
-    firstDate.classList.add('error-field');
-    firstDate.scrollIntoView({behavior:'smooth', block:'center'});
-    firstDate.focus();
-    setTimeout(function(){ firstDate.classList.remove('error-field'); }, 3000);
-    // Show error message
-    var errEl = document.getElementById('date-required-error');
-    if(!errEl){
-      errEl = document.createElement('div');
-      errEl.id = 'date-required-error';
-      errEl.style.cssText = 'font-size:.8rem;color:var(--red);font-weight:500;margin-top:.35rem;';
-      errEl.textContent = 'Please add at least one specific date before submitting.';
-      document.getElementById('frow-0').after(errEl);
-    }
-    setTimeout(function(){ if(errEl) errEl.remove(); }, 4000);
-  }
-});
-
-// ── Helpers ──
-function timeDiffMins(s, e){
-  var sp=s.split(':'), ep=e.split(':');
-  return (parseInt(ep[0])*60+parseInt(ep[1])) - (parseInt(sp[0])*60+parseInt(sp[1]));
-}
-function formatDuration(mins){
-  if(mins<60) return mins+' min';
-  var h=Math.floor(mins/60), m=mins%60;
-  return h+'h'+(m?' '+m+'m':'');
-}
-function fmt12(t){
-  if(!t) return '';
-  var p=t.split(':'), h=parseInt(p[0]), m=p[1];
-  var ap=h>=12?'PM':'AM';
-  h=h%12||12;
-  return h+':'+m+' '+ap;
-}
-</script>
-
 {% endblock %}

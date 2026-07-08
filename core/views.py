@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from .models import PodcastEpisode, Testimonial, DonationRecord, VolunteerSignup, BusinessSignup, StaffProfile
-from .forms import VolunteerForm, BusinessForm
+from .models import PodcastEpisode, Testimonial, DonationRecord, VolunteerSignup, VolunteerEvent, BusinessSignup, StaffProfile
+from .forms import VolunteerSignupForm, BusinessForm
 from .emails import send_volunteer_confirmation, send_business_confirmation
 
 
@@ -75,32 +75,68 @@ def podcast(request):
     episodes = PodcastEpisode.objects.all()
     return render(request, 'core/podcast.html', {'episodes': episodes})
 
+def donate(request):
+    return render(request, 'core/donate.html')
+
+
+# ── Volunteer events (public) ─────────────────────────────────
 def volunteer(request):
+    """Show all upcoming active events."""
+    today = timezone.now().date()
+    events = VolunteerEvent.objects.filter(is_active=True, date__gte=today).order_by('date', 'start_time')
+    return render(request, 'core/volunteer.html', {'events': events})
+
+
+def event_signup(request, pk):
+    """Sign up for a specific event."""
+    event = get_object_or_404(VolunteerEvent, pk=pk, is_active=True)
+
+    # Check if event is full
+    if event.is_full:
+        messages.error(request, f"Sorry, {event.title} is fully booked! No more spots available.")
+        return redirect('volunteer')
+
     if request.method == 'POST':
-        form = VolunteerForm(request.POST)
+        form = VolunteerSignupForm(request.POST)
         if form.is_valid():
-            vol = form.save(commit=False)
-            future_entries = []
-            i = 0
-            while i <= 20:
-                d     = request.POST.get(f'future_date_{i}', '').strip()
-                start = request.POST.get(f'future_start_{i}', '').strip()
-                end   = request.POST.get(f'future_end_{i}', '').strip()
-                if not d and not start and not end:
-                    if i > 0: break
-                    i += 1; continue
-                if d:
-                    future_entries.append({'date': d, 'start': start, 'end': end})
-                i += 1
-            vol.future_dates = json.dumps(future_entries)
-            vol.save()
-            send_volunteer_confirmation(vol)
-            messages.success(request, f"Thank you {vol.first_name}! Confirmation sent to {vol.email}.")
+            email = form.cleaned_data['email']
+
+            # Check if already signed up for this event
+            if VolunteerSignup.objects.filter(event=event, email=email).exists():
+                messages.error(request, "You've already signed up for this event!")
+                return render(request, 'core/event_signup.html', {'event': event, 'form': form})
+
+            # Check for time conflict — same day and overlapping time
+            conflicts = VolunteerSignup.objects.filter(
+                email=email,
+                event__date=event.date,
+                event__start_time__lt=event.end_time,
+                event__end_time__gt=event.start_time,
+            ).exclude(event=event)
+
+            if conflicts.exists():
+                conflict_event = conflicts.first().event
+                messages.error(request, f"You're already signed up for '{conflict_event.title}' which overlaps with this event's time slot!")
+                return render(request, 'core/event_signup.html', {'event': event, 'form': form})
+
+            # Re-check capacity (race condition safety)
+            if event.is_full:
+                messages.error(request, "Sorry, this event just filled up!")
+                return redirect('volunteer')
+
+            signup = form.save(commit=False)
+            signup.event = event
+            signup.save()
+            send_volunteer_confirmation(signup)
+            messages.success(request, f"You're registered for {event.title}! Check your email for confirmation.")
             return redirect('volunteer')
     else:
-        form = VolunteerForm()
-    return render(request, 'core/volunteer.html', {'form': form})
+        form = VolunteerSignupForm()
 
+    return render(request, 'core/event_signup.html', {'event': event, 'form': form})
+
+
+# ── Business ──────────────────────────────────────────────────
 def business(request):
     if request.method == 'POST':
         form = BusinessForm(request.POST)
@@ -119,9 +155,6 @@ def business(request):
     else:
         form = BusinessForm()
     return render(request, 'core/business.html', {'form': form})
-
-def donate(request):
-    return render(request, 'core/donate.html')
 
 
 # ── Staff auth ────────────────────────────────────────────────
@@ -142,7 +175,7 @@ def staff_login(request):
                 login(request, user)
                 return redirect('dashboard')
             except StaffProfile.DoesNotExist:
-                messages.error(request, "Your account does not have a staff role. Contact the owner.")
+                messages.error(request, "Your account does not have a staff role.")
         else:
             messages.error(request, "Invalid username or password.")
     return render(request, 'core/staff_login.html')
@@ -152,23 +185,20 @@ def staff_logout(request):
     return redirect('staff_login')
 
 
-# ── Main Dashboard ────────────────────────────────────────────
+# ── Dashboard ─────────────────────────────────────────────────
 @staff_required
 def dashboard(request):
     now         = timezone.now()
+    today       = now.date()
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     week_start  = now - timedelta(days=7)
     user_role   = get_role(request)
 
-    volunteers       = VolunteerSignup.objects.order_by('-created_at')
-    total_volunteers = volunteers.count()
-    new_volunteers   = volunteers.filter(created_at__gte=week_start).count()
-
-    volunteers_with_futures = []
-    for v in volunteers[:10]:
-        try: futures = json.loads(v.future_dates) if v.future_dates else []
-        except: futures = []
-        volunteers_with_futures.append({'vol': v, 'futures': futures})
+    # Events
+    upcoming_events = VolunteerEvent.objects.filter(date__gte=today).order_by('date', 'start_time')
+    past_events     = VolunteerEvent.objects.filter(date__lt=today).order_by('-date')[:5]
+    total_volunteers = VolunteerSignup.objects.count()
+    new_volunteers   = VolunteerSignup.objects.filter(created_at__gte=week_start).count()
 
     businesses        = BusinessSignup.objects.order_by('-created_at')
     total_businesses  = businesses.count()
@@ -178,8 +208,8 @@ def dashboard(request):
     total_donations = month_donations = donation_count = 0
     recent_donations = by_method = recent_episodes = []
     total_episodes = testimonial_count = 0
+    testimonials = []
     staff_members = []
-    testimonials  = []
 
     if user_role in ('owner', 'admin'):
         total_donations   = DonationRecord.objects.aggregate(s=Sum('amount'))['s'] or 0
@@ -197,8 +227,10 @@ def dashboard(request):
 
     ctx = {
         'user_role': user_role,
-        'total_volunteers': total_volunteers, 'new_volunteers': new_volunteers,
-        'volunteers_with_futures': volunteers_with_futures,
+        'upcoming_events': upcoming_events,
+        'past_events': past_events,
+        'total_volunteers': total_volunteers,
+        'new_volunteers': new_volunteers,
         'total_businesses': total_businesses, 'new_businesses': new_businesses,
         'recent_businesses': recent_businesses,
         'total_donations': total_donations, 'month_donations': month_donations,
@@ -211,27 +243,76 @@ def dashboard(request):
     return render(request, 'core/dashboard.html', ctx)
 
 
-# ── Volunteer CRUD ────────────────────────────────────────────
+# ── Event CRUD ────────────────────────────────────────────────
 @admin_required
-def volunteer_edit(request, pk):
-    vol = get_object_or_404(VolunteerSignup, pk=pk)
+def event_add(request):
     if request.method == 'POST':
-        for field in ['first_name','last_name','email','phone','school','avail_days','avail_start','avail_end']:
-            val = request.POST.get(field, '').strip()
-            if val is not None:
-                setattr(vol, field, val)
-        vol.save()
-        messages.success(request, f"Volunteer {vol.first_name} {vol.last_name} updated.")
+        ev = VolunteerEvent(
+            title          = request.POST.get('title','').strip(),
+            description    = request.POST.get('description','').strip(),
+            date           = request.POST.get('date'),
+            start_time     = request.POST.get('start_time'),
+            end_time       = request.POST.get('end_time'),
+            location       = request.POST.get('location','').strip(),
+            max_volunteers = int(request.POST.get('max_volunteers', 10)),
+            what_to_bring  = request.POST.get('what_to_bring','').strip(),
+            food_type      = request.POST.get('food_type','').strip(),
+            is_active      = request.POST.get('is_active') == 'on',
+            created_by     = request.user,
+        )
+        ev.save()
+        messages.success(request, f"Event '{ev.title}' created!")
         return redirect('dashboard')
-    return render(request, 'core/volunteer_edit.html', {'vol': vol, 'user_role': get_role(request)})
+    return render(request, 'core/event_form.html', {'ev': None, 'user_role': get_role(request)})
+
+
+@admin_required
+def event_edit(request, pk):
+    ev = get_object_or_404(VolunteerEvent, pk=pk)
+    if request.method == 'POST':
+        ev.title          = request.POST.get('title','').strip()
+        ev.description    = request.POST.get('description','').strip()
+        ev.date           = request.POST.get('date')
+        ev.start_time     = request.POST.get('start_time')
+        ev.end_time       = request.POST.get('end_time')
+        ev.location       = request.POST.get('location','').strip()
+        ev.max_volunteers = int(request.POST.get('max_volunteers', ev.max_volunteers))
+        ev.what_to_bring  = request.POST.get('what_to_bring','').strip()
+        ev.food_type      = request.POST.get('food_type','').strip()
+        ev.is_active      = request.POST.get('is_active') == 'on'
+        ev.save()
+        messages.success(request, f"Event '{ev.title}' updated.")
+        return redirect('dashboard')
+    return render(request, 'core/event_form.html', {'ev': ev, 'user_role': get_role(request)})
+
 
 @owner_required
-def volunteer_delete(request, pk):
-    vol = get_object_or_404(VolunteerSignup, pk=pk)
-    name = f"{vol.first_name} {vol.last_name}"
-    vol.delete()
-    messages.success(request, f"Volunteer '{name}' deleted.")
+def event_delete(request, pk):
+    ev = get_object_or_404(VolunteerEvent, pk=pk)
+    title = ev.title
+    ev.delete()
+    messages.success(request, f"Event '{title}' deleted.")
     return redirect('dashboard')
+
+
+@admin_required
+def event_detail(request, pk):
+    """View all signups for a specific event."""
+    ev = get_object_or_404(VolunteerEvent, pk=pk)
+    signups = ev.signups.order_by('-created_at')
+    return render(request, 'core/event_detail.html', {
+        'ev': ev, 'signups': signups, 'user_role': get_role(request)
+    })
+
+
+@owner_required
+def signup_delete(request, pk):
+    signup = get_object_or_404(VolunteerSignup, pk=pk)
+    event_pk = signup.event.pk
+    name = f"{signup.first_name} {signup.last_name}"
+    signup.delete()
+    messages.success(request, f"Removed {name} from the event.")
+    return redirect('event_detail', pk=event_pk)
 
 
 # ── Business CRUD ─────────────────────────────────────────────
@@ -253,7 +334,7 @@ def business_delete(request, pk):
     biz = get_object_or_404(BusinessSignup, pk=pk)
     name = biz.business_name
     biz.delete()
-    messages.success(request, f"Business '{name}' deleted.")
+    messages.success(request, f"'{name}' deleted.")
     return redirect('dashboard')
 
 
@@ -276,22 +357,22 @@ def podcast_add(request):
         ep.save()
         messages.success(request, f"Episode '{ep.title}' added!")
         return redirect('dashboard')
-    return render(request, 'core/podcast_form.html', {'user_role': get_role(request), 'ep': None})
+    return render(request, 'core/podcast_form.html', {'ep': None, 'user_role': get_role(request)})
 
 @admin_required
 def podcast_edit(request, pk):
     ep = get_object_or_404(PodcastEpisode, pk=pk)
     if request.method == 'POST':
-        ep.title         = request.POST.get('title','').strip()
-        ep.guest_name    = request.POST.get('guest_name','').strip()
-        ep.guest_title   = request.POST.get('guest_title','').strip()
-        ep.episode_type  = request.POST.get('episode_type','video')
-        ep.description   = request.POST.get('description','').strip()
-        ep.content       = request.POST.get('content','').strip()
-        ep.youtube_url   = request.POST.get('youtube_url','').strip()
-        ep.spotify_url   = request.POST.get('spotify_url','').strip()
-        ep.published_date= request.POST.get('published_date')
-        ep.is_featured   = request.POST.get('is_featured') == 'on'
+        ep.title          = request.POST.get('title','').strip()
+        ep.guest_name     = request.POST.get('guest_name','').strip()
+        ep.guest_title    = request.POST.get('guest_title','').strip()
+        ep.episode_type   = request.POST.get('episode_type','video')
+        ep.description    = request.POST.get('description','').strip()
+        ep.content        = request.POST.get('content','').strip()
+        ep.youtube_url    = request.POST.get('youtube_url','').strip()
+        ep.spotify_url    = request.POST.get('spotify_url','').strip()
+        ep.published_date = request.POST.get('published_date')
+        ep.is_featured    = request.POST.get('is_featured') == 'on'
         ep.save()
         messages.success(request, f"Episode '{ep.title}' updated.")
         return redirect('dashboard')
@@ -369,7 +450,7 @@ def donation_edit(request, pk):
         d.method      = request.POST.get('method', d.method)
         d.note        = request.POST.get('note','').strip()
         d.save()
-        messages.success(request, f"Donation updated.")
+        messages.success(request, "Donation updated.")
         return redirect('dashboard')
     return render(request, 'core/donation_form.html', {'d': d, 'user_role': get_role(request)})
 
@@ -381,7 +462,7 @@ def donation_delete(request, pk):
     return redirect('dashboard')
 
 
-# ── Staff management (owner only) ─────────────────────────────
+# ── Staff management ──────────────────────────────────────────
 @owner_required
 def staff_manage(request):
     if request.method == 'POST':
@@ -402,38 +483,7 @@ def staff_manage(request):
             else:
                 user = User.objects.create_user(username=username, password=password, first_name=first_name, last_name=last_name)
                 StaffProfile.objects.create(user=user, role=role, created_by=request.user)
-                messages.success(request, f"✅ {role.capitalize()} '{username}' created!")
-
-        elif action == 'delete':
-            user_id = request.POST.get('user_id')
-            try:
-                target = User.objects.get(id=user_id)
-                if target == request.user:
-                    messages.error(request, "You cannot delete your own account.")
-                elif hasattr(target, 'profile') and target.profile.role == 'owner':
-                    messages.error(request, "Cannot delete the owner account.")
-                else:
-                    name = target.username
-                    target.delete()
-                    messages.success(request, f"✅ '{name}' deleted.")
-            except User.DoesNotExist:
-                messages.error(request, "User not found.")
-
-        elif action == 'change_role':
-            user_id  = request.POST.get('user_id')
-            new_role = request.POST.get('new_role')
-            try:
-                target = User.objects.get(id=user_id)
-                if new_role == 'owner':
-                    messages.error(request, "Cannot assign owner role.")
-                elif hasattr(target, 'profile') and target.profile.role == 'owner':
-                    messages.error(request, "Cannot change the owner's role.")
-                else:
-                    target.profile.role = new_role
-                    target.profile.save()
-                    messages.success(request, f"✅ {target.username} is now {new_role}.")
-            except User.DoesNotExist:
-                messages.error(request, "User not found.")
+                messages.success(request, f"Account '{username}' created!")
 
         elif action == 'edit_info':
             user_id    = request.POST.get('user_id')
@@ -451,11 +501,42 @@ def staff_manage(request):
                     if last_name:  target.last_name  = last_name
                     if username:   target.username   = username
                     target.save()
-                    messages.success(request, f"✅ {target.username}'s info updated.")
+                    messages.success(request, f"Updated {target.username} successfully.")
             except User.DoesNotExist:
                 messages.error(request, "User not found.")
 
-        elif action == 'change_password':"
+        elif action == 'delete':
+            user_id = request.POST.get('user_id')
+            try:
+                target = User.objects.get(id=user_id)
+                if target == request.user:
+                    messages.error(request, "You cannot delete your own account.")
+                elif hasattr(target, 'profile') and target.profile.role == 'owner':
+                    messages.error(request, "Cannot delete the owner account.")
+                else:
+                    name = target.username
+                    target.delete()
+                    messages.success(request, f"'{name}' deleted.")
+            except User.DoesNotExist:
+                messages.error(request, "User not found.")
+
+        elif action == 'change_role':
+            user_id  = request.POST.get('user_id')
+            new_role = request.POST.get('new_role')
+            try:
+                target = User.objects.get(id=user_id)
+                if new_role == 'owner':
+                    messages.error(request, "Cannot assign owner role.")
+                elif hasattr(target, 'profile') and target.profile.role == 'owner':
+                    messages.error(request, "Cannot change the owner's role.")
+                else:
+                    target.profile.role = new_role
+                    target.profile.save()
+                    messages.success(request, f"{target.username} is now {new_role}.")
+            except User.DoesNotExist:
+                messages.error(request, "User not found.")
+
+        elif action == 'change_password':
             user_id  = request.POST.get('user_id')
             new_pass = request.POST.get('new_password','').strip()
             try:
@@ -467,7 +548,7 @@ def staff_manage(request):
                 else:
                     target.set_password(new_pass)
                     target.save()
-                    messages.success(request, f"✅ Password changed for {target.username}.")
+                    messages.success(request, f"Password changed for {target.username}.")
             except User.DoesNotExist:
                 messages.error(request, "User not found.")
 
@@ -475,7 +556,3 @@ def staff_manage(request):
 
     staff_members = StaffProfile.objects.select_related('user', 'created_by').order_by('role')
     return render(request, 'core/staff_manage.html', {'staff_members': staff_members})
-
-
-# Patch: add edit_info to staff_manage — insert after change_password block
-# This is handled by patching the staff_manage function directly on server

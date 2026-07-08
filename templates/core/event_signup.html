@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up — {{ event.title }}{% endblock %}
+
+{% block content %}
+
+<div class="page-hero" style="padding-bottom:2rem;">
+  <span class="tag">Volunteer Sign Up</span>
+  <h1>{{ event.title }}</h1>
+  <div style="display:flex;gap:1.25rem;flex-wrap:wrap;margin-top:.75rem;justify-content:center;">
+    <span style="color:rgba(255,255,255,.85);font-size:.9rem;">📅 {{ event.date|date:"l, F j, Y" }}</span>
+    <span style="color:rgba(255,255,255,.85);font-size:.9rem;">⏰ {{ event.start_time|time:"g:i A" }} – {{ event.end_time|time:"g:i A" }}</span>
+    <span style="color:rgba(255,255,255,.85);font-size:.9rem;">📍 {{ event.location }}</span>
+    <span style="color:rgba(255,255,255,.85);font-size:.9rem;">👥 {{ event.spots_left }} spot{{ event.spots_left|pluralize }} left</span>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="form-layout">
+
+      <!-- Sidebar: event details -->
+      <div class="form-sidebar">
+        <h2>Event Details</h2>
+        <p>{{ event.description }}</p>
+
+        <div class="event-detail-list">
+          <div class="edl-item">
+            <div class="edl-icon">📅</div>
+            <div>
+              <div class="edl-label">Date</div>
+              <div class="edl-value">{{ event.date|date:"l, F j, Y" }}</div>
+            </div>
+          </div>
+          <div class="edl-item">
+            <div class="edl-icon">⏰</div>
+            <div>
+              <div class="edl-label">Time</div>
+              <div class="edl-value">{{ event.start_time|time:"g:i A" }} – {{ event.end_time|time:"g:i A" }}</div>
+            </div>
+          </div>
+          <div class="edl-item">
+            <div class="edl-icon">📍</div>
+            <div>
+              <div class="edl-label">Location</div>
+              <div class="edl-value">{{ event.location }}</div>
+            </div>
+          </div>
+          <div class="edl-item">
+            <div class="edl-icon">👥</div>
+            <div>
+              <div class="edl-label">Spots Available</div>
+              <div class="edl-value">{{ event.spots_left }} of {{ event.max_volunteers }}</div>
+            </div>
+          </div>
+          {% if event.food_type %}
+          <div class="edl-item">
+            <div class="edl-icon">🍱</div>
+            <div>
+              <div class="edl-label">Food Type</div>
+              <div class="edl-value">{{ event.food_type }}</div>
+            </div>
+          </div>
+          {% endif %}
+          {% if event.what_to_bring %}
+          <div class="edl-item">
+            <div class="edl-icon">🎒</div>
+            <div>
+              <div class="edl-label">What to Bring</div>
+              <div class="edl-value">{{ event.what_to_bring }}</div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Capacity bar -->
+        <div style="margin-top:1.5rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:.4rem;">
+            <span>Capacity</span>
+            <span>{{ event.spots_taken }}/{{ event.max_volunteers }}</span>
+          </div>
+          <div style="height:8px;background:var(--border);border-radius:40px;overflow:hidden;">
+            <div style="height:100%;width:{{ event.capacity_percent }}%;border-radius:40px;
+              background:{% if event.capacity_percent >= 90 %}var(--red){% elif event.capacity_percent >= 60 %}#f59e0b{% else %}#22c55e{% endif %};
+              transition:width .3s;"></div>
+          </div>
+        </div>
+
+        <a href="/volunteer/" style="display:inline-block;margin-top:1.5rem;font-size:.85rem;color:var(--muted);text-decoration:none;">← Back to all events</a>
+      </div>
+
+      <!-- Form -->
+      <div class="form-card">
+        {% if messages %}
+          {% for msg in messages %}
+          <div style="background:{% if msg.tags == 'error' %}#fdf2f4{% else %}#d4edda{% endif %};
+                      border:1px solid {% if msg.tags == 'error' %}#f2c4cc{% else %}#c3e6cb{% endif %};
+                      color:{% if msg.tags == 'error' %}#b5273a{% else %}#155724{% endif %};
+                      border-radius:8px;padding:.85rem 1rem;margin-bottom:1.25rem;font-size:.88rem;">
+            {{ msg }}
+          </div>
+          {% endfor %}
+        {% endif %}
+
+        <h3>Your Information</h3>
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="form-section-label">Personal Information</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.first_name.id_for_label }}">First Name *</label>
+              {{ form.first_name }}{{ form.first_name.errors }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.last_name.id_for_label }}">Last Name *</label>
+              {{ form.last_name }}{{ form.last_name.errors }}
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.email.id_for_label }}">Email *</label>
+              {{ form.email }}{{ form.email.errors }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.phone.id_for_label }}">Phone</label>
+              {{ form.phone }}{{ form.phone.errors }}
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.birthdate.id_for_label }}">Date of Birth *</label>
+              {{ form.birthdate }}{{ form.birthdate.errors }}
+              <div class="age-display" id="ageDisplay"></div>
+            </div>
+            <div class="form-group">
+              <label for="{{ form.school.id_for_label }}">School / University</label>
+              {{ form.school }}{{ form.school.errors }}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:1rem;">
+            Confirm Sign Up →
+          </button>
+          <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.75rem;">
+            You'll receive a confirmation email with event details.
+          </p>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+.event-detail-list { display:flex;flex-direction:column;gap:.85rem;margin-top:1.25rem; }
+.edl-item { display:flex;align-items:flex-start;gap:.75rem; }
+.edl-icon { font-size:1.1rem;flex-shrink:0;margin-top:1px; }
+.edl-label{ font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px; }
+.edl-value{ font-size:.88rem;color:var(--charcoal);font-weight:500; }
+</style>
+
+<script>
+var dobField = document.getElementById('id_birthdate');
+if(dobField){
+  dobField.addEventListener('change', function(){
+    var bd = new Date(this.value), now = new Date();
+    var age = now.getFullYear() - bd.getFullYear();
+    var m = now.getMonth() - bd.getMonth();
+    if(m < 0 || (m===0 && now.getDate() < bd.getDate())) age--;
+    var el = document.getElementById('ageDisplay');
+    if(el){ el.style.display='block'; el.textContent='Age: '+age+' years old'; }
+  });
+}
+</script>
+{% endblock %}
