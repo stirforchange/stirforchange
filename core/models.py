@@ -26,18 +26,18 @@ class StaffProfile(models.Model):
 
 
 class VolunteerEvent(models.Model):
-    title           = models.CharField(max_length=200)
-    description     = models.TextField()
-    date            = models.DateField()
-    start_time      = models.TimeField()
-    end_time        = models.TimeField()
-    location        = models.CharField(max_length=300)
-    max_volunteers  = models.PositiveIntegerField(default=10)
-    what_to_bring   = models.TextField(blank=True)
-    food_type       = models.CharField(max_length=200, blank=True)
-    is_active       = models.BooleanField(default=True)
-    created_by      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_events')
-    created_at      = models.DateTimeField(auto_now_add=True)
+    title          = models.CharField(max_length=200)
+    description    = models.TextField()
+    date           = models.DateField()
+    start_time     = models.TimeField()
+    end_time       = models.TimeField()
+    location       = models.CharField(max_length=300)
+    max_volunteers = models.PositiveIntegerField(default=10)
+    what_to_bring  = models.TextField(blank=True)
+    food_type      = models.CharField(max_length=200, blank=True)
+    is_active      = models.BooleanField(default=True)
+    created_by     = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_events')
+    created_at     = models.DateTimeField(auto_now_add=True)
 
     @property
     def spots_taken(self):
@@ -58,7 +58,7 @@ class VolunteerEvent(models.Model):
         return min(100, int((self.spots_taken / self.max_volunteers) * 100))
 
     def __str__(self):
-        return f"{self.title} — {self.date}"
+        return f"{self.title} - {self.date}"
 
     class Meta:
         ordering = ['date', 'start_time']
@@ -82,19 +82,18 @@ class VolunteerSignup(models.Model):
         return today.year - b.year - ((today.month, today.day) < (b.month, b.day))
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} → {self.event.title}"
+        return f"{self.first_name} {self.last_name} -> {self.event.title}"
 
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'Volunteer Signup'
-        # Prevent duplicate signup for same event
         unique_together = [['event', 'email']]
 
 
 class BusinessSignup(models.Model):
     BUSINESS_TYPES = [
         ('restaurant', 'Restaurant'),
-        ('cafe',       'Café / Coffee Shop'),
+        ('cafe',       'Cafe / Coffee Shop'),
         ('bakery',     'Bakery'),
         ('catering',   'Catering Company'),
         ('grocery',    'Grocery / Market'),
@@ -119,7 +118,7 @@ class BusinessSignup(models.Model):
         return f"{self.street_address}, {self.city}, {self.state} {self.zip_code}"
 
     def __str__(self):
-        return f"{self.business_name} — {self.contact_name}"
+        return f"{self.business_name}"
 
     class Meta:
         ordering = ['-created_at']
@@ -145,20 +144,25 @@ class PodcastEpisode(models.Model):
     is_featured    = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.title} — {self.guest_name}"
+        return f"{self.title}"
 
     class Meta:
         ordering = ['-published_date']
         verbose_name = 'Podcast Episode'
 
     def get_youtube_embed(self):
-        if 'watch?v=' in self.youtube_url:
-            vid = self.youtube_url.split('watch?v=')[-1].split('&')[0]
+        url = self.youtube_url
+        if not url:
+            return ''
+        if 'watch?v=' in url:
+            vid = url.split('watch?v=')[-1].split('&')[0]
             return f"https://www.youtube.com/embed/{vid}"
-        if 'youtu.be/' in self.youtube_url:
-            vid = self.youtube_url.split('youtu.be/')[-1].split('?')[0]
+        if 'youtu.be/' in url:
+            vid = url.split('youtu.be/')[-1].split('?')[0]
             return f"https://www.youtube.com/embed/{vid}"
-        return self.youtube_url
+        if 'embed/' in url:
+            return url
+        return url
 
 
 class Testimonial(models.Model):
@@ -169,7 +173,7 @@ class Testimonial(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} — {self.role}"
+        return f"{self.name}"
 
     class Meta:
         ordering = ['-created_at']
@@ -191,7 +195,7 @@ class DonationRecord(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"${self.amount} via {self.method} from {self.donor_name or 'Anonymous'}"
+        return f"${self.amount} via {self.method}"
 
     class Meta:
         ordering = ['-created_at']

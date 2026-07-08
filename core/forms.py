@@ -1,5 +1,5 @@
 from django import forms
-from .models import VolunteerSignup, BusinessSignup, VolunteerEvent
+from .models import VolunteerSignup, BusinessSignup
 import datetime
 
 US_STATES = [
@@ -64,9 +64,9 @@ class BusinessForm(forms.ModelForm):
             'street_address': forms.TextInput(attrs={'placeholder': '123 Main St'}),
             'city':           forms.TextInput(attrs={'placeholder': 'City'}),
             'zip_code':       forms.TextInput(attrs={'placeholder': 'ZIP Code'}),
-            'frequency':      forms.TextInput(attrs={'placeholder': 'e.g. Daily, weekly, after events...'}),
-            'food_types':     forms.Textarea(attrs={'placeholder': 'e.g. Prepared meals, baked goods...', 'rows': 3}),
-            'message':        forms.Textarea(attrs={'placeholder': 'Any questions or additional details...', 'rows': 3}),
+            'frequency':      forms.TextInput(attrs={'placeholder': 'e.g. Daily, weekly...'}),
+            'food_types':     forms.Textarea(attrs={'placeholder': 'e.g. Prepared meals, produce...', 'rows': 3}),
+            'message':        forms.Textarea(attrs={'placeholder': 'Any additional details...', 'rows': 3}),
         }
         labels = {
             'street_address': 'Street Address',
