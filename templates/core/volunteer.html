@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% block title %}Volunteer Events{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <span class="tag">Get Involved</span>
+  <h1>Volunteer <em>Events</em></h1>
+  <p>Pick an upcoming event and sign up to volunteer. Every shift you give turns into real meals for families in need.</p>
+</div>
+
+<section class="section">
+  <div class="container">
+
+    {% if messages %}
+      {% for msg in messages %}
+      <div style="background:{% if msg.tags == 'error' %}#fdf2f4{% else %}#d4edda{% endif %};
+                  border:1px solid {% if msg.tags == 'error' %}#f2c4cc{% else %}#c3e6cb{% endif %};
+                  color:{% if msg.tags == 'error' %}#b5273a{% else %}#155724{% endif %};
+                  border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.9rem;">
+        {{ msg }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if events %}
+    <div class="events-grid">
+      {% for event in events %}
+      <div class="event-card {% if event.is_full %}event-full{% endif %}">
+
+        <!-- Header strip -->
+        <div class="event-card-header">
+          <div class="event-date-block">
+            <div class="event-month">{{ event.date|date:"M" }}</div>
+            <div class="event-day">{{ event.date|date:"d" }}</div>
+          </div>
+          <div class="event-header-info">
+            <h3 class="event-title">{{ event.title }}</h3>
+            <div class="event-time">⏰ {{ event.start_time|time:"g:i A" }} – {{ event.end_time|time:"g:i A" }}</div>
+          </div>
+          {% if event.is_full %}
+          <span class="event-full-badge">FULL</span>
+          {% else %}
+          <span class="event-spots-badge">{{ event.spots_left }} spot{{ event.spots_left|pluralize }} left</span>
+          {% endif %}
+        </div>
+
+        <!-- Body -->
+        <div class="event-card-body">
+          <div class="event-location">📍 {{ event.location }}</div>
+          <p class="event-desc">{{ event.description }}</p>
+
+          {% if event.food_type %}
+          <div class="event-tag">🍱 {{ event.food_type }}</div>
+          {% endif %}
+          {% if event.what_to_bring %}
+          <div class="event-tag">🎒 Bring: {{ event.what_to_bring }}</div>
+          {% endif %}
+
+          <!-- Capacity bar -->
+          <div class="capacity-wrap">
+            <div class="capacity-bar">
+              <div class="capacity-fill {% if event.capacity_percent >= 90 %}cap-high{% elif event.capacity_percent >= 60 %}cap-med{% else %}cap-low{% endif %}"
+                   style="width:{{ event.capacity_percent }}%;"></div>
+            </div>
+            <div class="capacity-text">{{ event.spots_taken }}/{{ event.max_volunteers }} volunteers</div>
+          </div>
+
+          {% if event.is_full %}
+          <button class="btn event-btn-full" disabled>No More Spots Available</button>
+          {% else %}
+          <a href="/volunteer/{{ event.pk }}/signup/" class="btn btn-primary event-btn">Sign Up to Volunteer →</a>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="no-events">
+      <div class="no-events-icon">📅</div>
+      <h3>No upcoming events right now</h3>
+      <p>Check back soon — we're always planning new food rescue events!</p>
+      <a href="/about/" class="btn btn-primary" style="margin-top:1rem;">Learn About Us →</a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<style>
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Event card */
+.event-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--s1);
+  transition: transform .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+}
+.event-card:hover { transform: translateY(-3px); box-shadow: var(--s2); }
+.event-full { opacity: .8; }
+
+/* Header */
+.event-card-header {
+  background: linear-gradient(135deg, var(--red), #8D1D2E);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.event-date-block {
+  background: rgba(255,255,255,.2);
+  border-radius: 10px;
+  padding: .5rem .75rem;
+  text-align: center;
+  flex-shrink: 0;
+  min-width: 52px;
+}
+.event-month { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.8); }
+.event-day   { font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1; font-family: var(--ff-d); }
+.event-header-info { flex: 1; }
+.event-title { font-size: 1rem; font-weight: 600; color: #fff; margin: 0 0 .25rem; line-height: 1.3; }
+.event-time  { font-size: .78rem; color: rgba(255,255,255,.8); }
+.event-full-badge {
+  background: rgba(0,0,0,.25);
+  color: #fff;
+  border-radius: 40px;
+  padding: 4px 10px;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  flex-shrink: 0;
+}
+.event-spots-badge {
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  border-radius: 40px;
+  padding: 4px 10px;
+  font-size: .72rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Body */
+.event-card-body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; }
+.event-location { font-size: .84rem; color: var(--muted); margin-bottom: .75rem; font-weight: 500; }
+.event-desc { font-size: .88rem; color: var(--charcoal); line-height: 1.6; margin-bottom: .85rem; flex: 1; }
+.event-tag { display: inline-block; font-size: .78rem; color: var(--charcoal); background: var(--pink-bg); border: 1px solid var(--border); border-radius: 40px; padding: 4px 12px; margin: 0 .35rem .5rem 0; }
+
+/* Capacity bar */
+.capacity-wrap { margin: .85rem 0 1.1rem; }
+.capacity-bar { height: 6px; background: var(--border); border-radius: 40px; overflow: hidden; margin-bottom: .35rem; }
+.capacity-fill { height: 100%; border-radius: 40px; transition: width .3s; }
+.cap-low  { background: #22c55e; }
+.cap-med  { background: #f59e0b; }
+.cap-high { background: var(--red); }
+.capacity-text { font-size: .72rem; color: var(--muted); font-weight: 500; }
+
+/* Buttons */
+.event-btn { width: 100%; text-align: center; padding: 12px; }
+.event-btn-full { width: 100%; padding: 12px; background: var(--border); color: var(--muted); border: none; border-radius: var(--r2); font-family: var(--ff-b); font-size: .88rem; cursor: not-allowed; }
+
+/* No events */
+.no-events { text-align: center; padding: 5rem 2rem; color: var(--muted); }
+.no-events-icon { font-size: 3rem; margin-bottom: 1rem; }
+.no-events h3 { color: var(--charcoal); font-size: 1.3rem; margin-bottom: .5rem; }
+
+@media(max-width: 768px) {
+  .events-grid { grid-template-columns: 1fr; }
+}
+
+/* Future interest form */
+.fi-label { font-size:.8rem;font-weight:600;color:#444;display:block;margin-bottom:.3rem; }
+.fi-input { width:100%;padding:.6rem .75rem;border:1px solid #ddd;border-radius:7px;font-size:.88rem;font-family:inherit;box-sizing:border-box; }
+.fi-input:focus { outline:none;border-color:#b5132a;box-shadow:0 0 0 3px rgba(181,19,42,.1); }
+.fi-errtxt { color:red;font-size:.78rem;margin-top:.2rem; }
+.fi-grid2 { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
+@media(max-width:600px){ .fi-grid2{grid-template-columns:1fr;} }
+</style>
+
+<section style="background:var(--pink-bg,#fff5f7);padding:3rem 1rem;margin-top:2rem;">
+  <div style="max-width:640px;margin:0 auto;">
+
+    <div style="background:linear-gradient(135deg,var(--red,#b5132a),#8D1D2E);border-radius:14px;padding:1.5rem;margin-bottom:1.75rem;text-align:center;">
+      <div style="font-size:2rem;margin-bottom:.4rem;">📣</div>
+      <h2 style="color:#fff;margin:0 0 .4rem;font-size:1.35rem;">Get Notified for Future Events</h2>
+      <p style="color:rgba(255,255,255,.85);margin:0;font-size:.88rem;">No upcoming event? Drop your info and we'll reach out when the next one is planned.</p>
+    </div>
+
+    {% if interest_success %}
+    <div style="background:#d4edda;border:1px solid #c3e6cb;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:#155724;text-align:center;">
+      <strong>🎉 You're on the list!</strong> We'll reach out when a new event is coming up. Thank you!
+    </div>
+    {% endif %}
+
+    {% if not interest_success %}
+    <form method="post" style="background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.07);">
+      {% csrf_token %}
+      <input type="hidden" name="form_type" value="interest">
+
+      <div class="fi-grid2" style="margin-bottom:1rem;">
+        <div>
+          <label class="fi-label">First Name *</label>
+          {{ interest_form.first_name }}
+          {% if interest_form.first_name.errors %}<div class="fi-errtxt">{{ interest_form.first_name.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+          <label class="fi-label">Last Name *</label>
+          {{ interest_form.last_name }}
+          {% if interest_form.last_name.errors %}<div class="fi-errtxt">{{ interest_form.last_name.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="fi-grid2" style="margin-bottom:1rem;">
+        <div>
+          <label class="fi-label">Email *</label>
+          {{ interest_form.email }}
+          {% if interest_form.email.errors %}<div class="fi-errtxt">{{ interest_form.email.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+          <label class="fi-label">Phone *</label>
+          {{ interest_form.phone }}
+          {% if interest_form.phone.errors %}<div class="fi-errtxt">{{ interest_form.phone.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label class="fi-label">Date of Birth *</label>
+        {{ interest_form.date_of_birth }}
+        {% if interest_form.date_of_birth.errors %}<div class="fi-errtxt">{{ interest_form.date_of_birth.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label class="fi-label">Address *</label>
+        {{ interest_form.address }}
+        {% if interest_form.address.errors %}<div class="fi-errtxt">{{ interest_form.address.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div style="background:#fff9fb;border:1px solid #f5c6d0;border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+        <p style="font-size:.8rem;font-weight:600;color:#b5132a;margin:0 0 .75rem;">Parent / Guardian Info <span style="font-weight:400;color:#888;">(if applicable)</span></p>
+        <div class="fi-grid2">
+          <div>
+            <label class="fi-label">Guardian Name</label>
+            {{ interest_form.guardian_name }}
+          </div>
+          <div>
+            <label class="fi-label">Guardian Phone or Email</label>
+            {{ interest_form.guardian_contact }}
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" style="width:100%;background:#b5132a;color:#fff;border:none;border-radius:8px;padding:.85rem;font-size:1rem;font-weight:600;cursor:pointer;">
+        ✅ Add Me to the List
+      </button>
+    </form>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

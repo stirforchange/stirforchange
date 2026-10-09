@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block title %}Partner With Us{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <span class="tag">Local Business Partners</span>
+  <h1>Turn Your <em>Surplus</em> Into Impact</h1>
+  <p>Join StirForChange as a food recovery partner. Your surplus food, handled safely and distributed with care to families in need — at zero cost to you.</p>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="form-layout">
+
+      <div class="form-sidebar">
+        <h2>Your leftovers can change lives.</h2>
+        <p>We handle all pickups — zero extra work for your team. Just set a time that works for you.</p>
+        <ul class="perks-list">
+          <li><span class="ck">✓</span> Reduce food waste and landfill impact</li>
+          <li><span class="ck">✓</span> We handle pickup — zero hassle for you</li>
+          <li><span class="ck">✓</span> Tax-deductible in-kind donation receipt</li>
+          <li><span class="ck">✓</span> Featured as a StirForChange partner</li>
+          <li><span class="ck">✓</span> Support teen leadership in your community</li>
+          <li><span class="ck">✓</span> Supports SB 1383 compliance</li>
+        </ul>
+        <div class="sidebar-note">
+          <strong>Fresh food only.</strong>
+          We accept fresh, properly stored, or unopened food only. Our volunteers are trained in safe food handling and will never collect expired or unsafe items.
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3>Food Recovery Partner Application</h3>
+        <form method="post" novalidate id="bizForm">
+          {% csrf_token %}
+
+          <div class="form-section-label">Business Information</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.business_name.id_for_label }}">Business Name *</label>
+              {{ form.business_name }}{{ form.business_name.errors }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.business_type.id_for_label }}">Business Type *</label>
+              {{ form.business_type }}{{ form.business_type.errors }}
+            </div>
+          </div>
+
+          <div class="form-section-label">Contact Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.contact_name.id_for_label }}">Contact Person *</label>
+              {{ form.contact_name }}{{ form.contact_name.errors }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.phone.id_for_label }}">Phone *</label>
+              {{ form.phone }}{{ form.phone.errors }}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email Address *</label>
+            {{ form.email }}{{ form.email.errors }}
+          </div>
+
+          <div class="form-section-label">Business Address</div>
+          <div class="form-group">
+            <label for="{{ form.street_address.id_for_label }}">Street Address *</label>
+            {{ form.street_address }}{{ form.street_address.errors }}
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="{{ form.city.id_for_label }}">City *</label>
+              {{ form.city }}{{ form.city.errors }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.state.id_for_label }}">State *</label>
+              {{ form.state }}{{ form.state.errors }}
+            </div>
+            <div class="form-group">
+              <label for="{{ form.zip_code.id_for_label }}">ZIP Code *</label>
+              {{ form.zip_code }}{{ form.zip_code.errors }}
+            </div>
+          </div>
+
+          <div class="form-section-label">Donation Details</div>
+          <div class="form-group">
+            <label for="{{ form.frequency.id_for_label }}">How often can you donate?</label>
+            {{ form.frequency }}{{ form.frequency.errors }}
+          </div>
+          <div class="form-group">
+            <label for="{{ form.food_types.id_for_label }}">Types of Surplus Food</label>
+            {{ form.food_types }}{{ form.food_types.errors }}
+          </div>
+          <div class="form-group">
+            <label for="{{ form.message.id_for_label }}">Anything Else?</label>
+            {{ form.message }}{{ form.message.errors }}
+          </div>
+
+          {# ── Food Recovery Agreement — accordion ── #}
+          <div class="form-section-label">Food Recovery Agreement</div>
+          <div class="agreement-accordion">
+            <div class="accordion-header" id="accordionBtn" role="button" tabindex="0">
+              <span>📄 Food Recovery Agreement — Click to Read</span>
+              <span class="accordion-arrow" id="accordionArrow">▼</span>
+            </div>
+            <div class="accordion-body" id="accordionBody">
+              <p>This Food Recovery Agreement ("Agreement") is entered into between <strong>StirForChange</strong> ("FRO/FRS"), a registered 501(c)(3) nonprofit Food Recovery Organization, and the undersigned Commercial Edible Food Generator ("CEFG").</p>
+              <p>The CEFG wishes to provide its Edible Food that would otherwise be disposed of to StirForChange pursuant to the terms of this Agreement.</p>
+
+              <h5>Background</h5>
+              <p>Both Parties wish to engage in this Agreement to reduce the amount of Edible Food going to landfills to be in line with Senate Bill 1383, the Organics Reduction and Recycling Ordinance in Alameda County, and other local ordinances implementing SB 1383.</p>
+
+              <h5>Section 1 — Allowable Foods</h5>
+              <p><strong>1.1 Acceptable Foods:</strong> Fresh, properly stored, or unopened prepared foods, baked goods, produce, and packaged items. All food must meet health and safety standards.</p>
+              <p><strong>1.2 Foods NOT Accepted:</strong> Expired food, improperly stored food, contaminated food, food with broken packaging, or any item not meeting safe food handling standards. StirForChange reserves the right to refuse any donation at its discretion.</p>
+
+              <h5>Section 2 — Responsibilities of the Food Generator (CEFG)</h5>
+              <p>2.1 Provide only safe, edible food for donation.</p>
+              <p>2.2 Store donated food properly until pickup.</p>
+              <p>2.3 Notify StirForChange of any changes to donation availability or pickup schedule with reasonable advance notice.</p>
+              <p>2.4 Cooperate with StirForChange volunteers during pickups and provide safe access to food.</p>
+
+              <h5>Section 3 — Responsibilities of StirForChange (FRO/FRS)</h5>
+              <p>3.1 Collect donated food in a timely manner per the agreed schedule.</p>
+              <p>3.2 Handle all donated food in accordance with safe food handling practices.</p>
+              <p>3.3 Distribute donated food to community members in need and not for commercial resale.</p>
+              <p>3.4 Provide CEFG with donation documentation for tax deduction purposes upon request.</p>
+
+              <h5>Section 4 — Liability &amp; Good Samaritan Protection</h5>
+              <p>4.1 The Bill Emerson Good Samaritan Food Donation Act and California's Good Samaritan Food Donation Law provide liability protection to food donors who donate in good faith.</p>
+              <p>4.2 CEFG shall not be liable for damages arising from consumption of donated food, provided the food was donated in good faith and was apparently wholesome at the time of donation.</p>
+              <p>4.3 StirForChange takes responsibility for proper handling, transport, and distribution of all donated food once collected.</p>
+
+              <h5>Section 5 — Term &amp; Termination</h5>
+              <p>5.1 This Agreement is ongoing and may be terminated by either party with 30 days written notice.</p>
+              <p>5.2 Either party may terminate immediately upon material breach.</p>
+
+              <h5>Section 6 — SB 1383 Compliance</h5>
+              <p>6.1 This Agreement supports compliance with California Senate Bill 1383, which requires large food generators to recover the maximum amount of edible food. Maintaining this relationship may count toward SB 1383 requirements.</p>
+
+              <h5>Section 7 — General Provisions</h5>
+              <p>7.1 This Agreement constitutes the entire agreement between the parties regarding food recovery. Modifications must be in writing and agreed to by both parties. Governed by the laws of the State of California.</p>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="agreeCheck" name="agree_terms" required>
+              <label for="agreeCheck">I have read and agree to the Food Recovery Agreement. I am authorized to enter into this agreement on behalf of my business. <strong>*</strong></label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:.5rem;">
+            Submit Partnership Application →
+          </button>
+          <p style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:.75rem;">By submitting you confirm you have read and agreed to the Food Recovery Agreement above.</p>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+// Accordion toggle
+var btn   = document.getElementById('accordionBtn');
+var body  = document.getElementById('accordionBody');
+var arrow = document.getElementById('accordionArrow');
+btn.addEventListener('click', function(){
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+});
+btn.addEventListener('keydown', function(e){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();btn.click();}
+});
+
+// Block submit if unchecked
+document.getElementById('bizForm').addEventListener('submit', function(e){
+  var cb = document.getElementById('agreeCheck');
+  if(!cb.checked){
+    e.preventDefault();
+    body.classList.add('open'); arrow.classList.add('open');
+    cb.scrollIntoView({behavior:'smooth',block:'center'});
+    cb.style.outline='2px solid var(--red)';
+    setTimeout(function(){cb.style.outline='';},2500);
+  }
+});
+</script>
+
+{% endblock %}

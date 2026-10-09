@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Staff Login{% endblock %}
+
+{% block content %}
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;background:var(--pink-bg);">
+  <div style="width:100%;max-width:420px;">
+
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:2rem;">
+      <img src="/static/images/logo.png" alt="StirForChange" style="height:64px;margin-bottom:1rem;">
+      <h2 style="font-family:var(--ff-d);font-size:1.5rem;color:var(--charcoal);margin:0;">Staff Portal</h2>
+      <p style="font-size:.85rem;color:var(--muted);margin-top:.35rem;">Sign in to access the dashboard</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+      {% for msg in messages %}
+      <div style="background:{% if msg.tags == 'error' %}#fdf2f4{% else %}#d4edda{% endif %};
+                  border:1px solid {% if msg.tags == 'error' %}var(--pink){% else %}#c3e6cb{% endif %};
+                  color:{% if msg.tags == 'error' %}var(--red){% else %}#155724{% endif %};
+                  border-radius:var(--r2);padding:.85rem 1rem;margin-bottom:1rem;font-size:.85rem;">
+        {{ msg }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Login card -->
+    <div style="background:var(--white);border-radius:var(--r-lg);padding:2rem;box-shadow:var(--s2);border:1px solid var(--border);">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--charcoal);">Username</label>
+          <input type="text" name="username" required autofocus
+            style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r1);font-family:var(--ff-b);font-size:.9rem;margin-top:5px;box-sizing:border-box;">
+        </div>
+        <div class="form-group" style="margin-top:1rem;">
+          <label style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--charcoal);">Password</label>
+          <input type="password" name="password" required
+            style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r1);font-family:var(--ff-b);font-size:.9rem;margin-top:5px;box-sizing:border-box;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1.5rem;padding:13px;">
+          Sign In →
+        </button>
+      </form>
+    </div>
+
+    <p style="text-align:center;font-size:.78rem;color:var(--muted);margin-top:1.25rem;">
+      <a href="/" style="color:var(--muted);">← Back to website</a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}

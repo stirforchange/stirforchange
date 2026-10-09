@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Future Event Interest List — StirForChange{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+
+  <div class="dash-header">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h1 style="margin:0;color:#fff;">📋 Future Event Interest List</h1>
+          <p style="margin:.25rem 0 0;color:rgba(255,255,255,.8);font-size:.88rem;">{{ interests.count }} people registered</p>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <a href="/dashboard/interests/export/" class="dash-hdr-btn">⬇️ Export CSV</a>
+          <a href="/dashboard/" class="dash-hdr-btn">← Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    {% if messages %}{% for msg in messages %}
+    <div class="dash-msg {% if msg.tags == 'error' %}dash-msg-err{% else %}dash-msg-ok{% endif %}">{{ msg }}</div>
+    {% endfor %}{% endif %}
+
+    <div class="dash-card">
+      {% if interests %}
+      <div style="overflow-x:auto;">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Age</th>
+              <th>Date of Birth</th>
+              <th>Address</th>
+              <th>Guardian Name</th>
+              <th>Guardian Contact</th>
+              <th>Registered</th>
+              {% if user_role == 'owner' %}<th>Remove</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for vi in interests %}
+            <tr>
+              <td style="color:var(--muted);font-size:.75rem;">{{ forloop.counter }}</td>
+              <td><strong>{{ vi.first_name }} {{ vi.last_name }}</strong></td>
+              <td style="font-size:.8rem;">{{ vi.email }}</td>
+              <td style="font-size:.8rem;">{{ vi.phone }}</td>
+              <td>{{ vi.age }}</td>
+              <td style="font-size:.8rem;color:var(--muted);">{{ vi.date_of_birth|date:"M j, Y" }}</td>
+              <td style="font-size:.78rem;color:var(--muted);max-width:160px;white-space:pre-wrap;">{{ vi.address }}</td>
+              <td style="font-size:.8rem;">{{ vi.guardian_name|default:"—" }}</td>
+              <td style="font-size:.8rem;color:var(--muted);">{{ vi.guardian_contact|default:"—" }}</td>
+              <td style="font-size:.75rem;color:var(--muted);">{{ vi.created_at|date:"M j, Y" }}</td>
+              {% if user_role == 'owner' %}
+              <td>
+                <form method="post" action="/dashboard/interests/{{ vi.pk }}/delete/" onsubmit="return confirm('Remove {{ vi.first_name }} from the interest list?');">
+                  {% csrf_token %}
+                  <button type="submit" class="action-btn delete-btn">🗑️</button>
+                </form>
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
+        <div style="font-size:2.5rem;margin-bottom:.5rem;">📭</div>
+        No one has signed up for future event calls yet.
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

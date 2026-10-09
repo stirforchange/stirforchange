@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}About Us — StirForChange{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <span class="tag">Our Founder</span>
+  <h1>Meet <em>Aarohi Jain</em></h1>
+  <p>Passionate about food justice, driven by community. Aarohi started StirForChange because she believed young people could solve real problems.</p>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="about-grid">
+
+      <div class="about-img-wrap">
+        <img src="{% static 'images/aarohi.jpeg' %}" alt="Aarohi Jain — Founder of StirForChange"
+             style="width:100%;border-radius:var(--r-lg);display:block;object-fit:cover;aspect-ratio:3/4;border:1.5px solid var(--border);box-shadow:var(--s2);">
+        <div style="margin-top:1rem;text-align:center;">
+          <strong style="display:block;font-size:1rem;color:var(--charcoal);">Aarohi Jain</strong>
+          <span style="font-size:.85rem;color:var(--muted);">Founder &amp; Executive Director</span>
+        </div>
+        <div style="margin-top:1rem;display:flex;flex-direction:column;gap:.75rem;">
+          <a href="{% url 'volunteer' %}" class="btn btn-primary" style="text-align:center;">Join Her Mission</a>
+          <a href="{% url 'podcast' %}" class="btn btn-outline" style="text-align:center;">Hear Her Interviews</a>
+        </div>
+      </div>
+
+      <div class="about-body">
+        <div class="sec-eyebrow">Her Story</div>
+        <h2>From a simple question<br>to a growing movement.</h2>
+        <br>
+        <p>Aarohi Jain founded StirForChange with a question that would not leave her alone: <em>"Why does so much good food get thrown away when so many people are hungry?"</em> That question became a mission — and the mission became an organization.</p>
+        <p>Growing up in a family with multiple food industries, Aarohi noticed how much untouched food goes to waste. She knew people struggled with putting meals on the table. Something had to change, and she decided to be the one to change it.</p>
+        <p>StirForChange is a teen-based nonprofit that partners with local restaurants to rescue food, then packs it with care and delivers it to people in need, including those experiencing homelessness.</p>
+
+        <h3>The Mission</h3>
+        <p>We reach out to local businesses willing to donate food or supplies — <strong>fresh, properly stored, or unopened food ONLY</strong> — organize volunteers to pack everything into meal boxes, and distribute them to homeless individuals and families in need.</p>
+
+        <h3>Our Values</h3>
+        <ul class="values-list">
+          <li><span class="vi">🌱</span><div><strong>Youth Empowerment</strong> — We believe teens are capable of real, lasting impact.</div></li>
+          <li><span class="vi">🤝</span><div><strong>Community First</strong> — Every decision we make is guided by the needs of the families we serve.</div></li>
+          <li><span class="vi">♻️</span><div><strong>Sustainability</strong> — Reducing food waste is good for people and good for the planet.</div></li>
+          <li><span class="vi">📣</span><div><strong>Advocacy</strong> — We don't just act — we educate and amplify the conversation around food justice.</div></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+.about-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+.about-img-wrap {
+  position: sticky;
+  top: 100px;
+}
+.about-body h2 { font-family: var(--ff-d); font-size: 1.75rem; color: var(--charcoal); margin-bottom: 1rem; }
+.about-body h3 { font-size: 1.1rem; color: var(--charcoal); margin: 1.5rem 0 .5rem; }
+.about-body p  { color: var(--muted); line-height: 1.75; margin-bottom: 1rem; }
+.values-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .85rem; }
+.values-list li { display: flex; gap: .75rem; align-items: flex-start; }
+.vi { font-size: 1.25rem; flex-shrink: 0; margin-top: 2px; }
+.sec-eyebrow { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--red); margin-bottom: .5rem; }
+@media(max-width: 768px) {
+  .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .about-img-wrap { position: static; }
+  .about-img-wrap img { aspect-ratio: 4/3; max-height: 380px; }
+}
+</style>
+
+{% endblock %}

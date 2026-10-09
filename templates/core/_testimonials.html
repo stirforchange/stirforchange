@@ -1,0 +1,27 @@
+{% if testimonials %}
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag">TESTIMONIALS</span>
+      <h2>Words from our <em>community</em></h2>
+      <p>Volunteers, business partners, and community members share their experience.</p>
+    </div>
+    <div class="t-grid">
+      {% for t in testimonials %}
+      <div class="t-card">
+        <div class="t-quote-mark">"</div>
+        <p class="t-quote">{{ t.quote }}</p>
+        <div class="t-divider"></div>
+        <div class="t-person">
+          <div class="t-avatar">{{ t.name|first }}</div>
+          <div>
+            <div class="t-name">{{ t.name }}</div>
+            <div class="t-role">{{ t.role }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}

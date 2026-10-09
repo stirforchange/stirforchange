@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard">
+  <div class="dash-header">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.35rem;">
+            <a href="/dashboard/" style="color:#fff;text-decoration:none;font-family:var(--ff-d);font-size:1.4rem;font-weight:600;">Dashboard</a>
+            <span class="role-badge role-{{ user_role }}">
+              {% if user_role == 'owner' %}👑 Owner{% elif user_role == 'admin' %}🛡️ Admin{% else %}👁️ Moderator{% endif %}
+            </span>
+          </div>
+          <p style="margin:0;color:rgba(255,255,255,.8);font-size:.85rem;">{{ request.user.get_full_name|default:request.user.username }}</p>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <a href="/dashboard/" class="dash-hdr-btn">← Dashboard</a>
+          <a href="/staff/logout/" class="dash-hdr-btn" style="background:rgba(255,255,255,.1);">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dash-body">
+    {% if messages %}{% for msg in messages %}
+    <div class="dash-msg {% if msg.tags == 'error' %}dash-msg-err{% else %}dash-msg-ok{% endif %}">{{ msg }}</div>
+    {% endfor %}{% endif %}
+    {% block dash_content %}{% endblock %}
+  </div>
+</div>
+
+{% endblock %}

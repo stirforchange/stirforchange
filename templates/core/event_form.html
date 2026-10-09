@@ -1,0 +1,33 @@
+{% extends 'core/dash_base.html' %}
+{% block title %}{% if ev %}Edit{% else %}Create{% endif %} Event{% endblock %}
+{% block dash_content %}
+<div class="dash-card" style="max-width:750px;">
+  <div class="dash-card-head"><h3>📅 {% if ev %}Edit Event{% else %}Create New Event{% endif %}</h3></div>
+  <form method="post" style="padding:1.5rem;">
+    {% csrf_token %}
+    <div class="form-group"><label class="dash-label">Event Title *</label><input type="text" name="title" value="{{ ev.title|default:'' }}" class="dash-input" required placeholder="e.g. Saturday Food Rescue at Whole Foods"></div>
+    <div class="form-group" style="margin-top:.85rem;"><label class="dash-label">Description *</label><textarea name="description" rows="3" class="dash-input" required placeholder="What will volunteers be doing at this event?">{{ ev.description|default:'' }}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-top:.85rem;">
+      <div><label class="dash-label">Date *</label><input type="date" name="date" value="{{ ev.date|default:'' }}" class="dash-input" required></div>
+      <div><label class="dash-label">Start Time *</label><input type="time" name="start_time" value="{{ ev.start_time|default:'' }}" class="dash-input" required></div>
+      <div><label class="dash-label">End Time *</label><input type="time" name="end_time" value="{{ ev.end_time|default:'' }}" class="dash-input" required></div>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:.75rem;margin-top:.85rem;">
+      <div><label class="dash-label">Location *</label><input type="text" name="location" value="{{ ev.location|default:'' }}" class="dash-input" required placeholder="Full address or venue name"></div>
+      <div><label class="dash-label">Max Volunteers *</label><input type="number" name="max_volunteers" value="{{ ev.max_volunteers|default:'10' }}" class="dash-input" required min="1" max="500"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem;">
+      <div><label class="dash-label">Food Type</label><input type="text" name="food_type" value="{{ ev.food_type|default:'' }}" class="dash-input" placeholder="e.g. Prepared meals, produce"></div>
+      <div><label class="dash-label">What to Bring</label><input type="text" name="what_to_bring" value="{{ ev.what_to_bring|default:'' }}" class="dash-input" placeholder="e.g. Gloves, reusable bags"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;margin-top:1rem;">
+      <input type="checkbox" name="is_active" id="is_active" {% if not ev or ev.is_active %}checked{% endif %} style="width:18px;height:18px;accent-color:var(--red);">
+      <label for="is_active" style="font-size:.88rem;color:var(--charcoal);cursor:pointer;">Event is active and visible to volunteers</label>
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+      <button type="submit" class="btn btn-primary">{% if ev %}Save Changes{% else %}Create Event{% endif %}</button>
+      <a href="/dashboard/" class="btn" style="background:var(--pink-bg);color:var(--charcoal);border:1.5px solid var(--border);">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'core/dash_base.html' %}
+{% block title %}{% if d %}Edit{% else %}Log{% endif %} Donation{% endblock %}
+{% block dash_content %}
+<div class="dash-card" style="max-width:600px;">
+  <div class="dash-card-head"><h3>💰 {% if d %}Edit Donation{% else %}Log New Donation{% endif %}</h3></div>
+  <form method="post" style="padding:1.5rem;">
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="form-group"><label class="dash-label">Donor Name</label><input type="text" name="donor_name" value="{{ d.donor_name|default:'' }}" class="dash-input" placeholder="Anonymous"></div>
+      <div class="form-group"><label class="dash-label">Donor Email</label><input type="email" name="donor_email" value="{{ d.donor_email|default:'' }}" class="dash-input"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="dash-label">Amount ($) *</label><input type="number" name="amount" value="{{ d.amount|default:'' }}" step="0.01" min="0.01" class="dash-input" required></div>
+      <div class="form-group"><label class="dash-label">Method *</label>
+        <select name="method" class="dash-input">
+          <option value="stripe" {% if d and d.method == 'stripe' %}selected{% endif %}>Stripe</option>
+          <option value="zelle"  {% if d and d.method == 'zelle'  %}selected{% endif %}>Zelle</option>
+          <option value="check"  {% if d and d.method == 'check'  %}selected{% endif %}>Check</option>
+          <option value="other"  {% if d and d.method == 'other'  %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="dash-label">Note</label><textarea name="note" rows="2" class="dash-input" placeholder="Any notes about this donation...">{{ d.note|default:'' }}</textarea></div>
+    <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+      <button type="submit" class="btn btn-primary">{% if d %}Save Changes{% else %}Log Donation{% endif %}</button>
+      <a href="/dashboard/" class="btn" style="background:var(--pink-bg);color:var(--charcoal);border:1.5px solid var(--border);">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
