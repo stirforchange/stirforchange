@@ -1,5 +1,9 @@
 from django import forms
+<<<<<<< HEAD
 from .models import VolunteerSignup, BusinessSignup, VolunteerInterest
+=======
+from .models import VolunteerSignup, BusinessSignup
+>>>>>>> 264f5bbc8a75c7c94a742851b7a5cac3e2db307a
 import datetime
 
 US_STATES = [
@@ -75,6 +79,7 @@ class BusinessForm(forms.ModelForm):
             'frequency':      'Donation Frequency',
             'message':        'Anything Else?',
         }
+<<<<<<< HEAD
 
 
 class VolunteerInterestForm(forms.ModelForm):
@@ -97,3 +102,5 @@ class VolunteerInterestForm(forms.ModelForm):
             'guardian_name':    'Parent / Guardian Name',
             'guardian_contact': 'Guardian Phone or Email',
         }
+=======
+>>>>>>> 264f5bbc8a75c7c94a742851b7a5cac3e2db307a
