@@ -6,19 +6,14 @@
 <div class="page-hero">
   <span class="tag">Get Involved</span>
   <h1>Volunteer <em>Events</em></h1>
-  <p>Pick an upcoming event and sign up to volunteer. Every shift you give turns into real meals for families in need.
-  </p>
+  <p>Pick an upcoming event and sign up to volunteer. Every shift you give turns into real meals for families in need.</p>
 </div>
 
 <!-- Notify strip: visible right under the hero, no scrolling needed -->
 <div class="notify-wrap">
   <div class="notify-strip">
     <div class="notify-icon" aria-hidden="true">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-      </svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     </div>
     <div class="notify-text">
       <div class="notify-title">Can't make these dates?</div>
@@ -32,9 +27,9 @@
   <div class="container">
 
     {% if messages %}
-    {% for msg in messages %}
-    <div class="vol-msg {% if msg.tags == 'error' %}vol-msg-err{% else %}vol-msg-ok{% endif %}">{{ msg }}</div>
-    {% endfor %}
+      {% for msg in messages %}
+      <div class="vol-msg {% if msg.tags == 'error' %}vol-msg-err{% else %}vol-msg-ok{% endif %}">{{ msg }}</div>
+      {% endfor %}
     {% endif %}
 
     {% if events %}
@@ -68,9 +63,8 @@
           {% if event.what_to_bring %}<div class="event-tag">🎒 Bring: {{ event.what_to_bring }}</div>{% endif %}
           <div class="capacity-wrap">
             <div class="capacity-bar">
-              <div
-                class="capacity-fill {% if event.capacity_percent >= 90 %}cap-high{% elif event.capacity_percent >= 60 %}cap-med{% else %}cap-low{% endif %}"
-                style="width:{{ event.capacity_percent }}%;"></div>
+              <div class="capacity-fill {% if event.capacity_percent >= 90 %}cap-high{% elif event.capacity_percent >= 60 %}cap-med{% else %}cap-low{% endif %}"
+                   style="width:{{ event.capacity_percent }}%;"></div>
             </div>
             <div class="capacity-text">{{ event.spots_taken }}/{{ event.max_volunteers }} volunteers</div>
           </div>
@@ -89,8 +83,7 @@
       <div class="no-events-icon">📅</div>
       <h3>No upcoming events right now</h3>
       <p>We're planning the next food rescue event. Join the interest list and you'll be the first to know.</p>
-      <button type="button" class="btn btn-primary btn-lg" style="margin-top:1.25rem;" onclick="openFI()">Notify Me
-        About Future Events</button>
+      <button type="button" class="btn btn-primary btn-lg" style="margin-top:1.25rem;" onclick="openFI()">Notify Me About Future Events</button>
     </div>
     {% endif %}
 
@@ -111,10 +104,7 @@
     {% if interest_success %}
     <div class="fi-success">
       <div class="fi-success-check" aria-hidden="true">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <h3>You're on the list!</h3>
       <p>Thank you. We'll reach out as soon as the next event is planned.</p>
@@ -129,14 +119,12 @@
         <div class="fi-field">
           <label class="fi-label" for="{{ interest_form.first_name.id_for_label }}">First name *</label>
           {{ interest_form.first_name }}
-          {% if interest_form.first_name.errors %}<div class="fi-err">{{ interest_form.first_name.errors.0 }}</div>{%
-          endif %}
+          {% if interest_form.first_name.errors %}<div class="fi-err">{{ interest_form.first_name.errors.0 }}</div>{% endif %}
         </div>
         <div class="fi-field">
           <label class="fi-label" for="{{ interest_form.last_name.id_for_label }}">Last name *</label>
           {{ interest_form.last_name }}
-          {% if interest_form.last_name.errors %}<div class="fi-err">{{ interest_form.last_name.errors.0 }}</div>{%
-          endif %}
+          {% if interest_form.last_name.errors %}<div class="fi-err">{{ interest_form.last_name.errors.0 }}</div>{% endif %}
         </div>
       </div>
 
@@ -157,8 +145,7 @@
         <div class="fi-field">
           <label class="fi-label" for="{{ interest_form.date_of_birth.id_for_label }}">Date of birth *</label>
           {{ interest_form.date_of_birth }}
-          {% if interest_form.date_of_birth.errors %}<div class="fi-err">{{ interest_form.date_of_birth.errors.0 }}
-          </div>{% endif %}
+          {% if interest_form.date_of_birth.errors %}<div class="fi-err">{{ interest_form.date_of_birth.errors.0 }}</div>{% endif %}
         </div>
         <div class="fi-field">
           <label class="fi-label" for="{{ interest_form.address.id_for_label }}">Address *</label>
@@ -167,8 +154,7 @@
         </div>
       </div>
 
-      <details class="fi-guardian" {% if interest_form.guardian_name.value or interest_form.guardian_contact.value
-        %}open{% endif %}>
+      <details class="fi-guardian" {% if interest_form.guardian_name.value or interest_form.guardian_contact.value %}open{% endif %}>
         <summary>Parent / guardian info <span>(if under 18)</span></summary>
         <div class="fi-grid2" style="margin-top:.85rem;">
           <div class="fi-field">
@@ -176,8 +162,7 @@
             {{ interest_form.guardian_name }}
           </div>
           <div class="fi-field">
-            <label class="fi-label" for="{{ interest_form.guardian_contact.id_for_label }}">Guardian phone or
-              email</label>
+            <label class="fi-label" for="{{ interest_form.guardian_contact.id_for_label }}">Guardian phone or email</label>
             {{ interest_form.guardian_contact }}
           </div>
         </div>
@@ -190,590 +175,114 @@
 </div>
 
 <style>
-  /* Notify strip */
-  .notify-wrap {
-    padding: 0 5vw;
-    margin-top: -1.75rem;
-    position: relative;
-    z-index: 2;
-  }
-
-  .notify-strip {
-    max-width: 860px;
-    margin: 0 auto;
-    background: var(--white);
-    border: 1.5px solid var(--bd2);
-    border-radius: var(--r3);
-    box-shadow: var(--s2);
-    padding: 1rem 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .notify-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: var(--pink-bg);
-    color: var(--red);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .notify-text {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .notify-title {
-    font-family: var(--ff-d);
-    font-size: 1.08rem;
-    color: var(--charcoal);
-    font-weight: 600;
-  }
-
-  .notify-sub {
-    font-size: .84rem;
-    color: var(--muted);
-    margin-top: .1rem;
-  }
-
-  .notify-btn {
-    flex-shrink: 0;
-  }
-
-  @media(max-width:600px) {
-    .notify-strip {
-      flex-wrap: wrap;
-      text-align: left;
-    }
-
-    .notify-btn {
-      width: 100%;
-      text-align: center;
-    }
-  }
-
-  /* Section header */
-  .vol-section {
-    padding-top: 3rem;
-  }
-
-  .vol-head {
-    display: flex;
-    align-items: baseline;
-    gap: .75rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .vol-head-title {
-    font-family: var(--ff-d);
-    font-size: 1.5rem;
-    color: var(--charcoal);
-    margin: 0;
-  }
-
-  .vol-head-count {
-    font-size: .78rem;
-    font-weight: 600;
-    color: var(--red);
-    background: var(--pink-bg);
-    border: 1px solid var(--border);
-    border-radius: 40px;
-    padding: 3px 10px;
-  }
-
-  .vol-msg {
-    border-radius: var(--r2);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
-    font-size: .9rem;
-  }
-
-  .vol-msg-ok {
-    background: #e9f7ee;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-  }
-
-  .vol-msg-err {
-    background: var(--pink-bg);
-    border: 1px solid var(--pink);
-    color: var(--red);
-  }
-
-  /* Event cards */
-  .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .event-card {
-    background: var(--white);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r3);
-    overflow: hidden;
-    box-shadow: var(--s1);
-    transition: transform .2s, box-shadow .2s;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .event-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--s2);
-  }
-
-  .event-full {
-    opacity: .8;
-  }
-
-  .event-card-header {
-    background: linear-gradient(135deg, var(--red), var(--red-dark));
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .event-date-block {
-    background: rgba(255, 255, 255, .2);
-    border-radius: 10px;
-    padding: .5rem .75rem;
-    text-align: center;
-    flex-shrink: 0;
-    min-width: 52px;
-  }
-
-  .event-month {
-    font-size: .65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: rgba(255, 255, 255, .85);
-  }
-
-  .event-day {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1;
-    font-family: var(--ff-d);
-  }
-
-  .event-header-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .event-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #fff;
-    margin: 0 0 .25rem;
-    line-height: 1.3;
-  }
-
-  .event-time {
-    font-size: .78rem;
-    color: rgba(255, 255, 255, .85);
-  }
-
-  .event-full-badge {
-    background: rgba(0, 0, 0, .25);
-    color: #fff;
-    border-radius: 40px;
-    padding: 4px 10px;
-    font-size: .65rem;
-    font-weight: 700;
-    letter-spacing: .08em;
-    flex-shrink: 0;
-  }
-
-  .event-spots-badge {
-    background: rgba(255, 255, 255, .2);
-    color: #fff;
-    border-radius: 40px;
-    padding: 4px 10px;
-    font-size: .72rem;
-    font-weight: 600;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  .event-card-body {
-    padding: 1.4rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .event-location {
-    font-size: .84rem;
-    color: var(--muted);
-    margin-bottom: .75rem;
-    font-weight: 500;
-  }
-
-  .event-desc {
-    font-size: .88rem;
-    color: var(--charcoal);
-    line-height: 1.6;
-    margin-bottom: .85rem;
-    flex: 1;
-  }
-
-  .event-tag {
-    display: inline-block;
-    font-size: .78rem;
-    color: var(--charcoal);
-    background: var(--pink-bg);
-    border: 1px solid var(--border);
-    border-radius: 40px;
-    padding: 4px 12px;
-    margin: 0 .35rem .5rem 0;
-  }
-
-  .capacity-wrap {
-    margin: .85rem 0 1.1rem;
-  }
-
-  .capacity-bar {
-    height: 6px;
-    background: var(--border);
-    border-radius: 40px;
-    overflow: hidden;
-    margin-bottom: .35rem;
-  }
-
-  .capacity-fill {
-    height: 100%;
-    border-radius: 40px;
-    transition: width .3s;
-  }
-
-  .cap-low {
-    background: #22c55e;
-  }
-
-  .cap-med {
-    background: #f59e0b;
-  }
-
-  .cap-high {
-    background: var(--red);
-  }
-
-  .capacity-text {
-    font-size: .72rem;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  .event-btn {
-    width: 100%;
-    text-align: center;
-    padding: 13px;
-  }
-
-  .event-btn-full {
-    width: 100%;
-    padding: 13px;
-    background: var(--border);
-    color: var(--muted);
-    border: none;
-    border-radius: 40px;
-    font-family: var(--ff-b);
-    font-size: .88rem;
-    cursor: not-allowed;
-  }
-
-  .no-events {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: var(--muted);
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  .no-events-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-
-  .no-events h3 {
-    color: var(--charcoal);
-    font-family: var(--ff-d);
-    font-size: 1.4rem;
-    margin-bottom: .5rem;
-  }
-
-  @media(max-width:768px) {
-    .events-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* Modal */
-  .fi-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(28, 23, 25, .55);
-    backdrop-filter: blur(3px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .25s, visibility .25s;
-  }
-
-  .fi-overlay.open {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .fi-modal {
-    position: relative;
-    background: var(--white);
-    border-radius: var(--r3);
-    box-shadow: 0 24px 64px rgba(28, 23, 25, .25);
-    width: 100%;
-    max-width: 600px;
-    max-height: calc(100vh - 2rem);
-    overflow-y: auto;
-    transform: translateY(16px) scale(.98);
-    transition: transform .25s;
-  }
-
-  .fi-overlay.open .fi-modal {
-    transform: none;
-  }
-
-  .fi-close {
-    position: absolute;
-    top: .9rem;
-    right: 1rem;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: var(--pink-bg);
-    color: var(--red);
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .fi-close:hover {
-    background: var(--pink);
-  }
-
-  .fi-modal-head {
-    background: var(--pink-bg);
-    border-bottom: 1.5px solid var(--border);
-    padding: 2rem 2rem 1.5rem;
-    text-align: center;
-  }
-
-  .fi-modal-head .tag {
-    display: inline-block;
-    background: var(--pink);
-    color: var(--red);
-    font-size: .68rem;
-    font-weight: 600;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    padding: 5px 12px;
-    border-radius: 40px;
-  }
-
-  .fi-modal-head h2 {
-    font-family: var(--ff-d);
-    font-size: 1.6rem;
-    color: var(--charcoal);
-    margin: .6rem 0 .4rem;
-  }
-
-  .fi-modal-head h2 em {
-    color: var(--red);
-  }
-
-  .fi-modal-head p {
-    font-size: .88rem;
-    color: var(--muted);
-    margin: 0;
-  }
-
-  .fi-form {
-    padding: 1.5rem 2rem 2rem;
-  }
-
-  .fi-grid2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 1rem;
-  }
-
-  @media(max-width:560px) {
-    .fi-grid2 {
-      grid-template-columns: 1fr;
-    }
-
-    .fi-form {
-      padding: 1.25rem;
-    }
-
-    .fi-modal-head {
-      padding: 1.75rem 1.25rem 1.25rem;
-    }
-  }
-
-  .fi-field {
-    margin-bottom: 1rem;
-  }
-
-  .fi-label {
-    display: block;
-    font-size: .78rem;
-    font-weight: 600;
-    color: var(--charcoal);
-    margin-bottom: .35rem;
-  }
-
-  .fi-input {
-    width: 100%;
-    padding: .7rem .85rem;
-    border: 1.5px solid var(--bd2);
-    border-radius: var(--r1);
-    font-size: .9rem;
-    font-family: var(--ff-b);
-    box-sizing: border-box;
-    background: var(--white);
-    color: var(--charcoal);
-    transition: border-color .2s, box-shadow .2s;
-  }
-
-  .fi-input:focus {
-    outline: none;
-    border-color: var(--red);
-    box-shadow: 0 0 0 3px rgba(181, 39, 58, .12);
-  }
-
-  textarea.fi-input {
-    resize: vertical;
-    min-height: 44px;
-  }
-
-  .fi-err {
-    color: var(--red);
-    font-size: .76rem;
-    margin-top: .3rem;
-  }
-
-  .fi-guardian {
-    border: 1.5px dashed var(--bd2);
-    border-radius: var(--r2);
-    padding: .85rem 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .fi-guardian summary {
-    cursor: pointer;
-    font-size: .85rem;
-    font-weight: 600;
-    color: var(--red);
-    list-style: none;
-  }
-
-  .fi-guardian summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .fi-guardian summary::before {
-    content: '+';
-    display: inline-block;
-    width: 1.1rem;
-    font-weight: 700;
-  }
-
-  .fi-guardian[open] summary::before {
-    content: '–';
-  }
-
-  .fi-guardian summary span {
-    font-weight: 400;
-    color: var(--muted);
-  }
-
-  .fi-guardian .fi-field:last-child {
-    margin-bottom: 0;
-  }
-
-  .fi-submit {
-    width: 100%;
-    text-align: center;
-  }
-
-  .fi-success {
-    padding: 2.25rem 2rem 2.5rem;
-    text-align: center;
-  }
-
-  .fi-success-check {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #e9f7ee;
-    color: #1e8e4a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-  }
-
-  .fi-success h3 {
-    font-family: var(--ff-d);
-    font-size: 1.4rem;
-    color: var(--charcoal);
-    margin: 0 0 .4rem;
-  }
-
-  .fi-success p {
-    color: var(--muted);
-    font-size: .9rem;
-    margin: 0 0 1.5rem;
-  }
-
-  body.fi-lock {
-    overflow: hidden;
-  }
+/* Notify strip */
+.notify-wrap { padding:0 5vw; margin-top:-1.75rem; position:relative; z-index:2; }
+.notify-strip { max-width:860px; margin:0 auto; background:var(--white); border:1.5px solid var(--bd2); border-radius:var(--r3); box-shadow:var(--s2); padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem; }
+.notify-icon { width:46px; height:46px; border-radius:50%; background:var(--pink-bg); color:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.notify-text { flex:1; min-width:0; }
+.notify-title { font-family:var(--ff-d); font-size:1.08rem; color:var(--charcoal); font-weight:600; }
+.notify-sub { font-size:.84rem; color:var(--muted); margin-top:.1rem; }
+.notify-btn { flex-shrink:0; }
+@media(max-width:600px){
+  .notify-strip { flex-wrap:wrap; text-align:left; }
+  .notify-btn { width:100%; text-align:center; }
+}
+
+/* Section header */
+.vol-section { padding-top:3rem; }
+.vol-head { display:flex; align-items:baseline; gap:.75rem; margin-bottom:1.25rem; }
+.vol-head-title { font-family:var(--ff-d); font-size:1.5rem; color:var(--charcoal); margin:0; }
+.vol-head-count { font-size:.78rem; font-weight:600; color:var(--red); background:var(--pink-bg); border:1px solid var(--border); border-radius:40px; padding:3px 10px; }
+.vol-msg { border-radius:var(--r2); padding:1rem 1.25rem; margin-bottom:1.5rem; font-size:.9rem; }
+.vol-msg-ok { background:#e9f7ee; border:1px solid #c3e6cb; color:#155724; }
+.vol-msg-err { background:var(--pink-bg); border:1px solid var(--pink); color:var(--red); }
+
+/* Event cards */
+.events-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1.5rem; }
+.event-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--r3); overflow:hidden; box-shadow:var(--s1); transition:transform .2s,box-shadow .2s; display:flex; flex-direction:column; }
+.event-card:hover { transform:translateY(-3px); box-shadow:var(--s2); }
+.event-full { opacity:.8; }
+.event-card-header { background:linear-gradient(135deg,var(--red),var(--red-dark)); padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1rem; }
+.event-date-block { background:rgba(255,255,255,.2); border-radius:10px; padding:.5rem .75rem; text-align:center; flex-shrink:0; min-width:52px; }
+.event-month { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.85); }
+.event-day { font-size:1.6rem; font-weight:800; color:#fff; line-height:1; font-family:var(--ff-d); }
+.event-header-info { flex:1; min-width:0; }
+.event-title { font-size:1rem; font-weight:600; color:#fff; margin:0 0 .25rem; line-height:1.3; }
+.event-time { font-size:.78rem; color:rgba(255,255,255,.85); }
+.event-full-badge { background:rgba(0,0,0,.25); color:#fff; border-radius:40px; padding:4px 10px; font-size:.65rem; font-weight:700; letter-spacing:.08em; flex-shrink:0; }
+.event-spots-badge { background:rgba(255,255,255,.2); color:#fff; border-radius:40px; padding:4px 10px; font-size:.72rem; font-weight:600; flex-shrink:0; white-space:nowrap; }
+.event-card-body { padding:1.4rem; flex:1; display:flex; flex-direction:column; }
+.event-location { font-size:.84rem; color:var(--muted); margin-bottom:.75rem; font-weight:500; }
+.event-desc { font-size:.88rem; color:var(--charcoal); line-height:1.6; margin-bottom:.85rem; flex:1; }
+.event-tag { display:inline-block; font-size:.78rem; color:var(--charcoal); background:var(--pink-bg); border:1px solid var(--border); border-radius:40px; padding:4px 12px; margin:0 .35rem .5rem 0; }
+.capacity-wrap { margin:.85rem 0 1.1rem; }
+.capacity-bar { height:6px; background:var(--border); border-radius:40px; overflow:hidden; margin-bottom:.35rem; }
+.capacity-fill { height:100%; border-radius:40px; transition:width .3s; }
+.cap-low { background:#22c55e; }
+.cap-med { background:#f59e0b; }
+.cap-high { background:var(--red); }
+.capacity-text { font-size:.72rem; color:var(--muted); font-weight:500; }
+.event-btn { width:100%; text-align:center; padding:13px; }
+.event-btn-full { width:100%; padding:13px; background:var(--border); color:var(--muted); border:none; border-radius:40px; font-family:var(--ff-b); font-size:.88rem; cursor:not-allowed; }
+.no-events { text-align:center; padding:4rem 2rem; color:var(--muted); max-width:520px; margin:0 auto; }
+.no-events-icon { font-size:3rem; margin-bottom:1rem; }
+.no-events h3 { color:var(--charcoal); font-family:var(--ff-d); font-size:1.4rem; margin-bottom:.5rem; }
+@media(max-width:768px){ .events-grid{ grid-template-columns:1fr; } }
+
+/* Modal */
+.fi-overlay { position:fixed; inset:0; background:rgba(28,23,25,.55); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:1rem; z-index:1000; opacity:0; visibility:hidden; transition:opacity .25s,visibility .25s; }
+.fi-overlay.open { opacity:1; visibility:visible; }
+.fi-modal { position:relative; background:var(--white); border-radius:var(--r3); box-shadow:0 24px 64px rgba(28,23,25,.25); width:100%; max-width:600px; max-height:calc(100vh - 2rem); overflow-y:auto; transform:translateY(16px) scale(.98); transition:transform .25s; }
+.fi-overlay.open .fi-modal { transform:none; }
+.fi-close { position:absolute; top:.9rem; right:1rem; width:36px; height:36px; border-radius:50%; border:none; background:var(--pink-bg); color:var(--red); font-size:1.5rem; line-height:1; cursor:pointer; }
+.fi-close:hover { background:var(--pink); }
+.fi-modal-head { background:var(--pink-bg); border-bottom:1.5px solid var(--border); padding:2rem 2rem 1.5rem; text-align:center; }
+.fi-modal-head .tag { display:inline-block; background:var(--pink); color:var(--red); font-size:.68rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; padding:5px 12px; border-radius:40px; }
+.fi-modal-head h2 { font-family:var(--ff-d); font-size:1.6rem; color:var(--charcoal); margin:.6rem 0 .4rem; }
+.fi-modal-head h2 em { color:var(--red); }
+.fi-modal-head p { font-size:.88rem; color:var(--muted); margin:0; }
+.fi-form { padding:1.5rem 2rem 2rem; }
+.fi-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 1rem; }
+@media(max-width:560px){ .fi-grid2{ grid-template-columns:1fr; } .fi-form{ padding:1.25rem; } .fi-modal-head{ padding:1.75rem 1.25rem 1.25rem; } }
+.fi-field { margin-bottom:1rem; }
+.fi-label { display:block; font-size:.78rem; font-weight:600; color:var(--charcoal); margin-bottom:.35rem; }
+.fi-input { width:100%; padding:.7rem .85rem; border:1.5px solid var(--bd2); border-radius:var(--r1); font-size:.9rem; font-family:var(--ff-b); box-sizing:border-box; background:var(--white); color:var(--charcoal); transition:border-color .2s,box-shadow .2s; }
+.fi-input:focus { outline:none; border-color:var(--red); box-shadow:0 0 0 3px rgba(181,39,58,.12); }
+textarea.fi-input { resize:vertical; min-height:44px; }
+.fi-err { color:var(--red); font-size:.76rem; margin-top:.3rem; }
+.fi-guardian { border:1.5px dashed var(--bd2); border-radius:var(--r2); padding:.85rem 1rem; margin-bottom:1.25rem; }
+.fi-guardian summary { cursor:pointer; font-size:.85rem; font-weight:600; color:var(--red); list-style:none; }
+.fi-guardian summary::-webkit-details-marker { display:none; }
+.fi-guardian summary::before { content:'+'; display:inline-block; width:1.1rem; font-weight:700; }
+.fi-guardian[open] summary::before { content:'–'; }
+.fi-guardian summary span { font-weight:400; color:var(--muted); }
+.fi-guardian .fi-field:last-child { margin-bottom:0; }
+.fi-submit { width:100%; text-align:center; }
+.fi-success { padding:2.25rem 2rem 2.5rem; text-align:center; }
+.fi-success-check { width:60px; height:60px; border-radius:50%; background:#e9f7ee; color:#1e8e4a; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; }
+.fi-success h3 { font-family:var(--ff-d); font-size:1.4rem; color:var(--charcoal); margin:0 0 .4rem; }
+.fi-success p { color:var(--muted); font-size:.9rem; margin:0 0 1.5rem; }
+body.fi-lock { overflow:hidden; }
 </style>
 
 <script>
-  function openFI() {
-    document.getElementById('fiOverlay').classList.add('open');
-    document.getElementById('fiOverlay').setAttribute('aria-hidden', 'false');
-    document.body.classList.add('fi-lock');
-    var first = document.querySelector('#fiOverlay .fi-input');
-    if (first) setTimeout(function () { first.focus(); }, 150);
-  }
-  function closeFI() {
-    document.getElementById('fiOverlay').classList.remove('open');
-    document.getElementById('fiOverlay').setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('fi-lock');
-  }
-  document.getElementById('fiOverlay').addEventListener('click', function (e) { if (e.target === this) closeFI(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeFI(); });
-  {% if interest_form.errors or interest_success %}
-  openFI();
-  {% endif %}
+function openFI() {
+  document.getElementById('fiOverlay').classList.add('open');
+  document.getElementById('fiOverlay').setAttribute('aria-hidden', 'false');
+  document.body.classList.add('fi-lock');
+  var first = document.querySelector('#fiOverlay .fi-input');
+  if (first) setTimeout(function(){ first.focus(); }, 150);
+}
+function closeFI() {
+  document.getElementById('fiOverlay').classList.remove('open');
+  document.getElementById('fiOverlay').setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('fi-lock');
+}
+document.getElementById('fiOverlay').addEventListener('click', function(e){ if (e.target === this) closeFI(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeFI(); });
+{% if interest_form.errors or interest_success %}
+openFI();
+{% endif %}
 </script>
 
 {% endblock %}
