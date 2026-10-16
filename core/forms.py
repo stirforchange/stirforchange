@@ -1,9 +1,5 @@
 from django import forms
-<<<<<<< HEAD
 from .models import VolunteerSignup, BusinessSignup, VolunteerInterest
-=======
-from .models import VolunteerSignup, BusinessSignup
->>>>>>> 264f5bbc8a75c7c94a742851b7a5cac3e2db307a
 import datetime
 
 US_STATES = [
@@ -79,7 +75,6 @@ class BusinessForm(forms.ModelForm):
             'frequency':      'Donation Frequency',
             'message':        'Anything Else?',
         }
-<<<<<<< HEAD
 
 
 class VolunteerInterestForm(forms.ModelForm):
@@ -88,19 +83,17 @@ class VolunteerInterestForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth',
                   'address', 'guardian_name', 'guardian_contact']
         widgets = {
-            'first_name':       forms.TextInput(attrs={'placeholder': 'First name'}),
-            'last_name':        forms.TextInput(attrs={'placeholder': 'Last name'}),
-            'email':            forms.EmailInput(attrs={'placeholder': 'your@email.com'}),
-            'phone':            forms.TextInput(attrs={'placeholder': '(555) 000-0000'}),
-            'date_of_birth':    forms.DateInput(attrs={'type': 'date', 'max': str(datetime.date.today())}),
-            'address':          forms.Textarea(attrs={'placeholder': 'Full street address', 'rows': 2}),
-            'guardian_name':    forms.TextInput(attrs={'placeholder': 'Parent / Guardian full name'}),
-            'guardian_contact': forms.TextInput(attrs={'placeholder': 'Guardian phone or email'}),
+            'first_name':       forms.TextInput(attrs={'placeholder': 'First name', 'class': 'fi-input'}),
+            'last_name':        forms.TextInput(attrs={'placeholder': 'Last name', 'class': 'fi-input'}),
+            'email':            forms.EmailInput(attrs={'placeholder': 'your@email.com', 'class': 'fi-input'}),
+            'phone':            forms.TextInput(attrs={'placeholder': '(555) 000-0000', 'class': 'fi-input'}),
+            'date_of_birth':    forms.DateInput(attrs={'type': 'date', 'max': str(datetime.date.today()), 'class': 'fi-input'}),
+            'address':          forms.Textarea(attrs={'placeholder': 'Full street address', 'rows': 2, 'class': 'fi-input'}),
+            'guardian_name':    forms.TextInput(attrs={'placeholder': 'Parent / Guardian full name', 'class': 'fi-input'}),
+            'guardian_contact': forms.TextInput(attrs={'placeholder': 'Guardian phone or email', 'class': 'fi-input'}),
         }
         labels = {
             'date_of_birth':    'Date of Birth',
             'guardian_name':    'Parent / Guardian Name',
             'guardian_contact': 'Guardian Phone or Email',
         }
-=======
->>>>>>> 264f5bbc8a75c7c94a742851b7a5cac3e2db307a
